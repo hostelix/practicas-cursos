@@ -1,0 +1,62 @@
+<html ng-app="Prueba">
+<head>
+  <meta charset="UTF-8">
+  <title>Pruebas angular</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.css">
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0-rc.0/angular.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.js"></script>
+</head>
+<body>
+    
+    <div ng-controller="BuscadorController">
+      <input type="text" ng-model="campo_buscador" ng-change="buscar()"> 
+      <ul>
+      <li ng-repeat="resultado in arreglo | filter: campo_buscador track by $index ">{{ resultado }}</li>   
+      </ul>
+
+    </div>
+    
+    <script>
+
+
+      var app = angular.module('Prueba', []);
+
+      app.controller('BuscadorController', ['$scope','$http','$log', function ($scope, $http,$log) {
+      
+        $log.info('algo');
+        $scope.arreglo = [];
+
+        $scope.buscar = function(){
+            $http.get('http://simci.tl/elementos?param='+$scope.campo_buscador).then(
+              function(data){
+              $scope.arreglo =JSON.parse(data.data.busqueda);
+            }
+
+          )
+        }
+        
+      }])
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+<!--
+/*Route::get('/elementos', function(){
+  header('Access-Control-Allow-Origin: *');  
+  header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
+  header('Access-Control-Allow-Headers: Content-Type, Content-Range, Content-Disposition, Content-Description');
+
+  return array('busqueda'=>ElementoQuimico::where('nombre', 'LIKE', "%".$_GET['param']."%")->get()->toJson(),
+    'parametro'=>$_GET);
+});*/
+
+-->
