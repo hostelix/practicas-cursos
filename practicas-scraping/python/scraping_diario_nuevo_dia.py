@@ -9,8 +9,6 @@ import sys
 import threading
 import logging
 
-candado_write = threading.Lock()
-
 python_version = sys.version_info.major
 
 if python_version == 2:
