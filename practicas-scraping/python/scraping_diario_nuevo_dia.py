@@ -8,6 +8,12 @@ import json
 import sys
 import threading
 import logging
+import os
+
+PATH_CARPETA_NOTICIAS = "noticias"
+
+if not os.path.exists(PATH_CARPETA_NOTICIAS):
+    os.makedirs(PATH_CARPETA_NOTICIAS)
 
 python_version = sys.version_info.major
 
@@ -51,7 +57,7 @@ class HiloScrapy(threading.Thread):
             text_json = json.dumps(noticias_JSON, sort_keys=True,indent=4, separators=(',', ': '))
             name_file = self.url_modulo['titulo']+'.json'
 
-            fichero = open(name_file, 'w')
+            fichero = open(os.path.join(PATH_CARPETA_NOTICIAS,name_file), 'w')
             fichero.write(text_json)
             fichero.close()
         else:
