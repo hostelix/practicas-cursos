@@ -11,113 +11,17 @@ using namespace std;
 typedef vector<char *> VectorPalabras;
 
 
-void crear_archivo(){
-	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+");
-	
-	if (archivo == NULL){
-		cout << "Error al abrir el archivo" << endl;
-		exit(1);
-	}
-	
-	fclose(archivo);
-}
+void crear_archivo();
 
-void escribir_palabra(const char palabra[]){
-	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+");
-	
-	if (archivo == NULL){
-		cout << "Error al abrir el archivo" << endl;
-		exit(1);
-	}
-	
-	fprintf(archivo,"%s\n",palabra);
-	
-	fclose(archivo);
-}
+void escribir_palabra(const char palabra[]);
 
-int obtener_numero_palabras(){
-	FILE *archivo = fopen(NOMBRE_ARCHIVO, "r");
-	int lineas = 0;
-	char caracter;
-	
-	if (archivo == NULL){
-		cout << "Error al abrir el archivo" << endl;
-		exit(1);
-	}
-	
-	while(!feof(archivo)){	
-		caracter = fgetc(archivo);
-		if(caracter == '\n'){
-			lineas++;
-		}
-	}
-	
-	fclose(archivo);
-	
-	return lineas;
-	
-}
+int obtener_numero_palabras();
 
-VectorPalabras leer_palabras(){
-	FILE *archivo = fopen(NOMBRE_ARCHIVO, "r");
+VectorPalabras leer_palabras();
 
-	char *linea_archivo = NULL;
-	size_t tamano_linea = 0;
-	
-	if (archivo == NULL){
-		cout << "Error al abrir el archivo" << endl;
-		exit(1);
-	}
-	
-	//Inicializamos el vector con el numero de palabras registradas
-	VectorPalabras palabras;
-	
-	while ((getline(&linea_archivo, &tamano_linea, archivo)) != -1) {
-		
-		char *nueva = new char[tamano_linea];
-		strcpy(nueva, linea_archivo);
-		
-		palabras.push_back(nueva);
-	}
-	
-	fclose(archivo);
-	
-	return palabras;
-}
+bool existe_palabra_diccionario(VectorPalabras vector, char palabra[]);
 
-bool existe_palabra_diccionario(VectorPalabras vector, char palabra[]){
-	
-	for(unsigned i=0; i<vector.size(); i++){
-		
-		char *palabra_tmp = strtok(vector[i],"\n");
-		
-		if(strcmp(palabra_tmp, palabra) == 0){
-		
-			return true;
-		}
-	}
-	
-	return false;
-}
-
-bool buscar_palabra_diccionario(VectorPalabras vector, char palabra[]){
-	
-	for(unsigned i=0; i<vector.size(); i++){
-		
-		char *palabra_tmp = strtok(vector[i],"\n");
-		
-		if(strcmp(palabra_tmp, palabra) == 0){
-			
-			cout << endl << "- - - - - - - Palabra encontrada - - - - - - -" << endl << endl;
-			
-			return true;
-		}
-	}
-	
-	cout << endl << "%%%%%% PALABRA NO ENCONTRADA %%%%%%%%" << endl << endl;
-	return false;
-}
-
+bool buscar_palabra_diccionario(VectorPalabras vector, char palabra[]);
 
 int main() {
 	
@@ -189,3 +93,111 @@ int main() {
 	return 0;
 }
 
+
+
+void crear_archivo(){
+	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+");
+	
+	if (archivo == NULL){
+		cout << "Error al abrir el archivo" << endl;
+		exit(1);
+	}
+	
+	fclose(archivo);
+}
+
+void escribir_palabra(const char palabra[]){
+	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+");
+	
+	if (archivo == NULL){
+		cout << "Error al abrir el archivo" << endl;
+		exit(1);
+	}
+	
+	fprintf(archivo,"%s\n",palabra);
+	
+	fclose(archivo);
+}
+
+int obtener_numero_palabras(){
+	FILE *archivo = fopen(NOMBRE_ARCHIVO, "r");
+	int lineas = 0;
+	char caracter;
+	
+	if (archivo == NULL){
+		cout << "Error al abrir el archivo" << endl;
+		exit(1);
+	}
+	
+	while(!feof(archivo)){	
+		caracter = fgetc(archivo);
+		if(caracter == '\n'){
+			lineas++;
+		}
+	}
+	
+	fclose(archivo);
+	
+	return lineas;
+	
+}
+
+VectorPalabras leer_palabras(){
+	FILE *archivo = fopen(NOMBRE_ARCHIVO, "r");
+	
+	char *linea_archivo = NULL;
+	size_t tamano_linea = 0;
+	
+	if (archivo == NULL){
+		cout << "Error al abrir el archivo" << endl;
+		exit(1);
+	}
+	
+	//Inicializamos el vector con el numero de palabras registradas
+	VectorPalabras palabras;
+	
+	while ((getline(&linea_archivo, &tamano_linea, archivo)) != -1) {
+		
+		char *nueva = new char[tamano_linea];
+		strcpy(nueva, linea_archivo);
+		
+		palabras.push_back(nueva);
+	}
+	
+	fclose(archivo);
+	
+	return palabras;
+}
+
+bool existe_palabra_diccionario(VectorPalabras vector, char palabra[]){
+	
+	for(unsigned i=0; i<vector.size(); i++){
+		
+		char *palabra_tmp = strtok(vector[i],"\n");
+		
+		if(strcmp(palabra_tmp, palabra) == 0){
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+bool buscar_palabra_diccionario(VectorPalabras vector, char palabra[]){
+	
+	for(unsigned i=0; i<vector.size(); i++){
+		
+		char *palabra_tmp = strtok(vector[i],"\n");
+		
+		if(strcmp(palabra_tmp, palabra) == 0){
+			
+			cout << endl << "- - - - - - - Palabra encontrada - - - - - - -" << endl << endl;
+			
+			return true;
+		}
+	}
+	
+	cout << endl << "%%%%%% PALABRA NO ENCONTRADA %%%%%%%%" << endl << endl;
+	return false;
+}
