@@ -13,10 +13,11 @@
 
 using namespace std;
 
+typedef vector<int> VectorResultados;
 //Estructura para almacenar el puntaje de cada jugador que entre al juego
 typedef struct{
 	char nombre[50];
-	float puntaje;
+	VectorResultados aciertos;
 }TJugador;
 
 //Estructura para almacenar la lista de jugadores dinamica
@@ -37,6 +38,14 @@ void pausa_mensaje(const char *mensaje);
 bool verficar_tiempo(double tiempo);
 
 void generar_operacion_aritmetica(char array_operaciones[], int min, int max, TJugador &jugador);
+
+int puntaje_total_jugador(TJugador jugador){
+	int total = 0;
+	for(unsigned int i=0; i<jugador.aciertos.size(); i++){
+		total += jugador.aciertos[i];
+	}
+	return total;
+}
 
 
 int main() {
@@ -81,7 +90,7 @@ int main() {
 				cout << "*************** TABLA DE RESULTADOS JUGADORES *****************" << endl;
 				
 				for(unsigned int i=0; i< vector_jugadores.size(); i++){
-					cout << "JUGADOR: " << vector_jugadores[i].nombre << " - PUNTAJE: " <<  vector_jugadores[i].puntaje << endl;
+					cout << "JUGADOR: " << vector_jugadores[i].nombre << " - ACIERTOS: " << vector_jugadores[i].aciertos.size() << " - PUNTAJE: " <<  puntaje_total_jugador(vector_jugadores[i]) << endl;
 				}
 				break;
 			}
@@ -107,8 +116,6 @@ TJugador crear_jugador(){
 	TJugador nuevo;
 	
 	cout << "Ingrese el nombre del jugador >"; cin >> nuevo.nombre; //Se lee el nombre del jugador
-	
-	nuevo.puntaje = 0; //Se guarda el puntaje 0 porque no comienza el juego aun
 	
 	return nuevo;
 }
@@ -171,11 +178,16 @@ void nuevo_juego(TJugador jugador, int rango_min, int rango_max, char array_oper
 	
 	cout << endl << " **************  Lo siento se acabo tu tiempo ************" << endl << endl;
 	
-	cout << "Bien hecho " << jugador.nombre << " Obtuviste un puntaje de : " << jugador.puntaje << endl;
+	cout << "Bien hecho " << jugador.nombre << " Obtuviste un puntaje de : " << puntaje_total_jugador(jugador) << endl;
+	cout << "Numero de aciertos: " << jugador.aciertos.size() << endl;
 	cout << "En un tiempo de " << TIEMPO_MAX << " segundos" << endl;
 	
 	//Anexamos el nuevo jugador al vector
 	lista_jugadores.push_back(jugador);
+	
+	pausa_mensaje("Presione una tecla para continuar");
+	
+	system("clear");
 	
 }
 
@@ -233,7 +245,7 @@ void generar_operacion_aritmetica(char array_operaciones[], int min, int max, TJ
 	
 	if(resultado_real == respuesta_jugador){
 		cout << "Excelente, respuesta correcta" << endl;
-		jugador.puntaje += puntaje_actual;
+		jugador.aciertos.push_back(puntaje_actual); // Agregamos el nuevo puntaje al vector de puntajes
 	}
 	else{
 		cout << "Respuesta incorrecta :( No eres tan bueno con las matematicas" << endl;
