@@ -173,7 +173,7 @@ int main() {
 			}
 			case 3:{
 				char palabra_tmp[50];
-				cout << "Introduce la nueva palabra >"; cin >> palabra_tmp;
+				cout << "Introduce la palabra a buscar >"; cin >> palabra_tmp;
 				
 				buscar_palabra_diccionario(diccionario_palabras, palabra_tmp);
 				break;
