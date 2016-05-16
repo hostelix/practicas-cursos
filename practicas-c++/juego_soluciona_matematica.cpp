@@ -11,7 +11,6 @@
 #define PUNTAJE_MULTIPLICACION 800
 #define PUNTAJE_DIVISION 1600
 
-
 using namespace std;
 
 //Estructura para almacenar el puntaje de cada jugador que entre al juego
@@ -37,54 +36,7 @@ void pausa_mensaje(const char *mensaje);
 
 bool verficar_tiempo(double tiempo);
 
-void generar_operacion_aritmetica(char array_operaciones[], int min, int max, TJugador &jugador){
-	
-	int operacion = obtener_numero_aleatorio(0,3);
-	int num_a = obtener_numero_aleatorio(min, max);
-	int num_b = obtener_numero_aleatorio(min, max);
-	float resultado_real=0, respuesta_jugador=0;
-	int puntaje_actual = 0;
-	
-	
-	cout << endl;
-	
-	switch(array_operaciones[operacion]){
-		case '+':
-			cout << "Operacion SUMA" << endl;
-			resultado_real = num_a + num_b;
-			puntaje_actual = PUNTAJE_SUMA;
-		break;
-		case '-':
-			cout << "Operacion RESTA" << endl;
-			resultado_real = num_a - num_b;
-			puntaje_actual = PUNTAJE_RESTA;
-		break;
-		case '*':
-			cout << "Operacion MULTIPLICACION" << endl;
-			resultado_real = num_a * num_b;
-			puntaje_actual = PUNTAJE_MULTIPLICACION;
-		break;
-		case '/':
-			cout << "Operacion DIVISION" << endl;
-			resultado_real = num_a / num_b;
-			puntaje_actual = PUNTAJE_DIVISION;
-		break;
-			
-	}
-	
-	cout << num_a << array_operaciones[operacion] << num_b << " : ?" << endl;
-	cout << "Introduce la respuesta >"; cin >> respuesta_jugador;
-	
-	if(resultado_real == respuesta_jugador){
-		cout << "Excelente, respuesta correcta" << endl;
-		jugador.puntaje += puntaje_actual;
-	}
-	else{
-		cout << "Respuesta incorrecta :( No eres tan bueno con las matematicas" << endl;
-	}
-	
-	
-}
+void generar_operacion_aritmetica(char array_operaciones[], int min, int max, TJugador &jugador);
 
 
 int main() {
@@ -123,11 +75,12 @@ int main() {
 			}
 				
 			case 2:{
+				system("clear");
 				
 				cout << endl;
 				cout << "*************** TABLA DE RESULTADOS JUGADORES *****************" << endl;
 				
-				for(int i=0; i< vector_jugadores.size(); i++){
+				for(unsigned int i=0; i< vector_jugadores.size(); i++){
 					cout << "JUGADOR: " << vector_jugadores[i].nombre << " - PUNTAJE: " <<  vector_jugadores[i].puntaje << endl;
 				}
 				break;
@@ -240,3 +193,51 @@ bool verficar_tiempo(double tiempo){
 	return true;
 }
 
+void generar_operacion_aritmetica(char array_operaciones[], int min, int max, TJugador &jugador){
+	
+	int operacion = obtener_numero_aleatorio(0,3);
+	int num_a = obtener_numero_aleatorio(min, max);
+	int num_b = obtener_numero_aleatorio(min, max);
+	float resultado_real=0, respuesta_jugador=0;
+	int puntaje_actual = 0;
+	
+	
+	cout << endl;
+	
+	switch(array_operaciones[operacion]){
+	case '+':
+		cout << "Operacion SUMA" << endl;
+		resultado_real = num_a + num_b;
+		puntaje_actual = PUNTAJE_SUMA;
+		break;
+	case '-':
+		cout << "Operacion RESTA" << endl;
+		resultado_real = num_a - num_b;
+		puntaje_actual = PUNTAJE_RESTA;
+		break;
+	case '*':
+		cout << "Operacion MULTIPLICACION" << endl;
+		resultado_real = num_a * num_b;
+		puntaje_actual = PUNTAJE_MULTIPLICACION;
+		break;
+	case '/':
+		cout << "Operacion DIVISION" << endl;
+		resultado_real = num_a / num_b;
+		puntaje_actual = PUNTAJE_DIVISION;
+		break;
+		
+	}
+	
+	cout << num_a << array_operaciones[operacion] << num_b << " : ?" << endl;
+	cout << "Introduce la respuesta >"; cin >> respuesta_jugador;
+	
+	if(resultado_real == respuesta_jugador){
+		cout << "Excelente, respuesta correcta" << endl;
+		jugador.puntaje += puntaje_actual;
+	}
+	else{
+		cout << "Respuesta incorrecta :( No eres tan bueno con las matematicas" << endl;
+	}
+	
+	
+}
