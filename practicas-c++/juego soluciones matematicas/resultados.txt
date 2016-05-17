@@ -1,0 +1,4 @@
+Nombre: hostelix - Resultado: 2200 
+Nombre: ivantelix - Resultado: 3800 
+Nombre: daniel - Resultado: 3200 
+Nombre: hostelix - Aciertos: 3 - Resultado: 2900 
