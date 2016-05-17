@@ -8,23 +8,29 @@ using namespace std;
 #define NOMBRE_ARCHIVO "diccionario.txt"
 
 
+//Tipo de datos para el vector dinamico de palabras
 typedef vector<char *> VectorPalabras;
 
-
+//Funcion para crear el archivo diccionario
 void crear_archivo();
 
+//Funcion para escribir una palabra dentro del archivo diccionario
 void escribir_palabra(const char palabra[]);
 
+//Funcion para obtener el numero de palabras dentro del diccionario
 int obtener_numero_palabras();
 
+//Funcion que carga en el vector dinamico todas las palabras del diccionario
 VectorPalabras leer_palabras();
 
+//Funcion para verificar si existe una palabra en el archivo 
 bool existe_palabra_diccionario(VectorPalabras vector, char palabra[]);
 
+//Funcion que busca una palabra en el diccionario 
 bool buscar_palabra_diccionario(VectorPalabras vector, char palabra[]);
 
 int main() {
-	
+	//Variable para mantener el do while
 	bool salir_programa = false;
 	int op = 0;
 	
@@ -46,13 +52,14 @@ int main() {
 				char palabra_tmp[50];
 				cout << "Introduce la nueva palabra >"; cin >> palabra_tmp;
 				
+				//Comprobamos que no existe la nueva palabra en el archivo
 				if(!existe_palabra_diccionario(diccionario_palabras,palabra_tmp)){
 					escribir_palabra(palabra_tmp);
 					
 					cout << "Palabra guardada con exito" << endl;
 					
 					diccionario_palabras.clear(); //vaciamos el vector de palabras para cargarlo nuevamente
-					diccionario_palabras = leer_palabras();
+					diccionario_palabras = leer_palabras(); //LLenamos el vector con las palabras del diccionario
 					
 					cout << endl;
 				}
@@ -96,7 +103,7 @@ int main() {
 
 
 void crear_archivo(){
-	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+");
+	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+"); // apertura del archivo
 	
 	if (archivo == NULL){
 		cout << "Error al abrir el archivo" << endl;
@@ -107,7 +114,7 @@ void crear_archivo(){
 }
 
 void escribir_palabra(const char palabra[]){
-	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+");
+	FILE *archivo = fopen(NOMBRE_ARCHIVO, "a+");// apertura del archivo append
 	
 	if (archivo == NULL){
 		cout << "Error al abrir el archivo" << endl;
@@ -120,7 +127,7 @@ void escribir_palabra(const char palabra[]){
 }
 
 int obtener_numero_palabras(){
-	FILE *archivo = fopen(NOMBRE_ARCHIVO, "r");
+	FILE *archivo = fopen(NOMBRE_ARCHIVO, "r"); // apertura del archivo read
 	int lineas = 0;
 	char caracter;
 	
@@ -131,7 +138,7 @@ int obtener_numero_palabras(){
 	
 	while(!feof(archivo)){	
 		caracter = fgetc(archivo);
-		if(caracter == '\n'){
+		if(caracter == '\n'){ //Cuando llgue al final de una linea se incrementa la variable
 			lineas++;
 		}
 	}
@@ -145,8 +152,8 @@ int obtener_numero_palabras(){
 VectorPalabras leer_palabras(){
 	FILE *archivo = fopen(NOMBRE_ARCHIVO, "r");
 	
-	char *linea_archivo = NULL;
-	size_t tamano_linea = 0;
+	char *linea_archivo = NULL; // string que guardara linea del archivo leido
+	size_t tamano_linea = 0; // Tamano la linea leida
 	
 	if (archivo == NULL){
 		cout << "Error al abrir el archivo" << endl;
@@ -158,10 +165,10 @@ VectorPalabras leer_palabras(){
 	
 	while ((getline(&linea_archivo, &tamano_linea, archivo)) != -1) {
 		
-		char *nueva = new char[tamano_linea];
+		char *nueva = new char[tamano_linea]; //Creamos la nueva palabra partiendo de la leida del archivo y se anexa a la lista dinamica
 		strcpy(nueva, linea_archivo);
 		
-		palabras.push_back(nueva);
+		palabras.push_back(nueva); // se agrega la nueva palabra al vector
 	}
 	
 	fclose(archivo);
@@ -173,9 +180,9 @@ bool existe_palabra_diccionario(VectorPalabras vector, char palabra[]){
 	
 	for(unsigned i=0; i<vector.size(); i++){
 		
-		char *palabra_tmp = strtok(vector[i],"\n");
+		char *palabra_tmp = strtok(vector[i],"\n"); //aqui se le quita el \n para que no de error la funcion de strcmp (comparacion)
 		
-		if(strcmp(palabra_tmp, palabra) == 0){
+		if(strcmp(palabra_tmp, palabra) == 0){ //comparamos si los dos string son iguales
 			
 			return true;
 		}
@@ -188,9 +195,9 @@ bool buscar_palabra_diccionario(VectorPalabras vector, char palabra[]){
 	
 	for(unsigned i=0; i<vector.size(); i++){
 		
-		char *palabra_tmp = strtok(vector[i],"\n");
+		char *palabra_tmp = strtok(vector[i],"\n");//aqui se le quita el \n para que no de error la funcion de strcmp (comparacion)
 		
-		if(strcmp(palabra_tmp, palabra) == 0){
+		if(strcmp(palabra_tmp, palabra) == 0){//comparamos si los dos string son iguales
 			
 			cout << endl << "- - - - - - - Palabra encontrada - - - - - - -" << endl << endl;
 			
