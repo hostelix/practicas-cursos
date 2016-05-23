@@ -2,6 +2,7 @@
 #include <time.h> //Libreria para manejar le time()
 #include <stdlib.h> //Libreria para manejar le rand()
 #include <vector>
+#include <fstream>
 
 //Tiempo maximo para realizar las operaciones
 #define TIEMPO_MAX 10
@@ -303,14 +304,17 @@ void leer_archivo(const char *nom_archivo){
 
 
 void escribir_resultados(TJugador jugador){
-	FILE *archivo = fopen(ARCHIVO_RESULTADOS, "a+");
 	
-	if (archivo == NULL){
-		cout << "Error al abrir el archivo" << endl;
-		exit(1);
+	ofstream archivo(ARCHIVO_RESULTADOS, ios::app);
+	
+	if (archivo)
+	{
+		archivo << "Nombre: " << jugador.nombre << "- Aciertos: " << jugador.aciertos.size() << "- Resultado: "<< puntaje_total_jugador(jugador) << endl;
 	}
-	
-	fprintf(archivo,"Nombre: %s - Aciertos: %d - Resultado: %d \n",jugador.nombre, jugador.aciertos.size(), puntaje_total_jugador(jugador));
-	
-	fclose(archivo);
+	else{
+		cout << " NO SE ENCONTRO EL ARCHIVO"<<endl;
+	}
+	archivo.close();
+
 }
+ 
