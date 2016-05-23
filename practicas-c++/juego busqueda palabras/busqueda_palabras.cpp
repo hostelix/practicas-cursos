@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h> //libreria de entrada y salida
 #include <stdlib.h>
 #include <vector>
 #include <string.h>
