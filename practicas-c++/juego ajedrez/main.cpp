@@ -14,8 +14,27 @@ using namespace std;
 #define TORRE 5
 #define CABALLO 6
 
+#define PIEZA_PEON "[P]"
+#define PIEZA_REINA "[R]"
+#define PIEZA_REY "[K]"
+#define PIEZA_ALFIL "[A]"
+#define PIEZA_TORRE "[T]"
+#define PIEZA_CABALLO "[C]"
+
+#define COLOR_ROJO     91
+#define COLOR_VERDE    92
+
+
+#define IMPRIME_COLOR_PIEZA(color, texto) printf("\x1b[%dm%s\x1b[0m",color, texto)
+
+
+typedef struct{
+	int pieza; // Numero de la pieza identidificada en las constantes simbolicas
+	int color_pieza; //Numero del color identificada en las contantes simbolicas
+}Pieza;
+
 typedef struct {
-	int tabla[MAX][MAX];
+	Pieza tabla[MAX][MAX];
 }Tablero;
 
 
@@ -34,11 +53,64 @@ void senal_terminar_programa(int senal)
 void llenar_tablero(Tablero *tablero_ajedrez){
 	for(int fila = 0; fila < MAX; fila++){
 		for(int colum = 0; colum < MAX; colum++){
-			if(fila == 1 || fila == 6){
-				tablero_ajedrez->tabla[fila][colum] = PEON;
+			//Peones
+			if(fila == 1){
+				tablero_ajedrez->tabla[fila][colum].pieza = PEON;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+			}
+			else if(fila == 6){
+				tablero_ajedrez->tabla[fila][colum].pieza = PEON;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+			}
+			
+			//Torres
+			else if((fila == 0 && colum == 0) || (fila == 0 && colum == 7)){
+				tablero_ajedrez->tabla[fila][colum].pieza = TORRE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+			}
+			else if((fila == 7 && colum == 0)|| (fila == 7 && colum == 7)){
+				tablero_ajedrez->tabla[fila][colum].pieza = TORRE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+			}
+			//Caballos
+			else if((fila == 0 && colum == 1) || (fila == 0 && colum == 6)){
+				tablero_ajedrez->tabla[fila][colum].pieza = CABALLO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+			}
+			else if((fila == 7 && colum == 1) || (fila == 7 && colum == 6)){
+				tablero_ajedrez->tabla[fila][colum].pieza = CABALLO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+			}
+			//Alfiles
+			else if((fila == 0 && colum == 2) || (fila == 0 && colum == 5)){
+				tablero_ajedrez->tabla[fila][colum].pieza = ALFIL;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+			}
+			else if((fila == 7 && colum == 2) || (fila == 7 && colum == 5)){
+				tablero_ajedrez->tabla[fila][colum].pieza = ALFIL;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+			}
+			//Reina
+			else if((fila == 0 && colum == 3)){
+				tablero_ajedrez->tabla[fila][colum].pieza = REINA;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+				
+			}
+			else if((fila == 7 && colum == 3)){
+				tablero_ajedrez->tabla[fila][colum].pieza = REINA;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+			}
+			//Rey
+			else if((fila == 0 && colum == 4)){
+				tablero_ajedrez->tabla[fila][colum].pieza = REY;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+			}
+			else if((fila == 7 && colum == 4)){
+				tablero_ajedrez->tabla[fila][colum].pieza = REY;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
 			}
 			else{
-				tablero_ajedrez->tabla[fila][colum] = VACIO;
+				tablero_ajedrez->tabla[fila][colum].pieza = VACIO;
 			}
 		}
 	}
@@ -46,24 +118,24 @@ void llenar_tablero(Tablero *tablero_ajedrez){
 void mostrar_tablero(Tablero *tablero_ajedrez){
 	for(int fila = 0; fila < MAX; fila++){
 		for(int colum = 0; colum < MAX; colum++){
-			switch(tablero_ajedrez->tabla[fila][colum]){
+			switch(tablero_ajedrez->tabla[fila][colum].pieza){
 				case PEON:
-					cout << "[" << PEON << "]";
+					IMPRIME_COLOR_PIEZA(tablero_ajedrez->tabla[fila][colum].color_pieza,PIEZA_PEON);
 					break;	
 				case REINA:
-					cout << "[" << REINA << "]";
+					IMPRIME_COLOR_PIEZA(tablero_ajedrez->tabla[fila][colum].color_pieza,PIEZA_REINA);
 					break;
 				case REY:
-					cout << "[" << REY << "]";
+					IMPRIME_COLOR_PIEZA(tablero_ajedrez->tabla[fila][colum].color_pieza,PIEZA_REY);
 					break;
 				case TORRE:
-					cout << "[" << TORRE << "]";
+					IMPRIME_COLOR_PIEZA(tablero_ajedrez->tabla[fila][colum].color_pieza,PIEZA_TORRE);
 					break;
 				case ALFIL:
-					cout << "[" << ALFIL << "]";
+					IMPRIME_COLOR_PIEZA(tablero_ajedrez->tabla[fila][colum].color_pieza,PIEZA_ALFIL);
 					break;
 				case CABALLO:
-					cout << "[" << CABALLO << "]";
+					IMPRIME_COLOR_PIEZA(tablero_ajedrez->tabla[fila][colum].color_pieza,PIEZA_CABALLO);
 					break;
 				default:
 					cout << "[ ]";
