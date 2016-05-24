@@ -1,8 +1,11 @@
 #include <iostream>
+#include <fstream>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -34,8 +37,9 @@ using namespace std;
 #define IMPRIME_COLOR_PIEZA(color, texto) printf("\x1b[%dm%s\x1b[0m",color, texto)
 
 
-#define INSTRUCCIONES "instrucciones.txt"
-#define RESULTADOS "resultados.txt"
+#define INSTRUCCIONES_ARCHIVO "instrucciones.txt"
+#define MOVIMIENTOS_ARCHIVO "movimientos.txt"
+#define PARTICIPANTES "participantes.txt"
 
 
 typedef struct{
@@ -52,6 +56,13 @@ typedef struct {
 	int y;
 }Posicion;
 
+typedef struct {
+	char nombre[50];
+	int num_movimientos;
+}Jugador;
+
+//Estructura para almacenar la lista de jugadores dinamica
+typedef vector<string> VectorNombres;
 
 void senal_terminar_programa(int senal)
 {
@@ -85,8 +96,14 @@ bool movimiento_caballo(Tablero *tablero_ajedrez, Posicion origen, Posicion dest
 bool movimiento_peon(Tablero *tablero_ajedrez, Posicion origen, Posicion destino);
 
 
+void leer_archivo(const char *nom_archivo);
+void escribir_archivo(Jugador jugador);
+VectorNombres leer_nombres_participantes();
+
+
 int main()
 {
+	
 	Tablero *tablero_juego = new Tablero;
 	int opcion;
 	bool salir = false;
@@ -96,7 +113,7 @@ int main()
 	
 	cout << "Bienvenido al juego de ajedrez" << endl << endl;
 	cout << "1)Comenzar a jugar" << endl;
-	cout << "2)Ver puntajes" << endl;
+	cout << "2)Ver participantes" << endl;
 	cout << "3)Intrucciones" << endl;
 	cout << "4)Salir" << endl;
 	cout << ">"; cin >> opcion;
@@ -105,7 +122,6 @@ int main()
 		switch(opcion){
 			
 			case 1:{
-				
 				//Se llama la funcion signal que escuchara el SIGINT
 				signal(SIGINT, senal_terminar_programa);
 				
@@ -113,6 +129,18 @@ int main()
 				
 				//Bucle infinito para la senal
 				while(1){
+					//Alamacenamos los participantes en un archivo
+					Jugador *jugadores = new Jugador[2];
+					
+					for(int i=0; i<2; i++){
+						cout << "Introduce el nombre del Jugador " << i+1 << endl;
+						cin >> jugadores[i].nombre;
+						
+						escribir_archivo(jugadores[i]);
+					}
+					
+					delete[] jugadores;
+					
 					do{
 						system("clear");
 						cout << "---------------------------------------------------------------" << endl;
@@ -130,11 +158,24 @@ int main()
 						//Movemos la pieza a la posicion
 						mover_pieza(tablero_juego, posicion_origen_mover, posicion_destino_mover);
 						
-						
 					}while(true);
 				}
 				break;
 			};
+				
+			case 2:{
+				VectorNombres lista_participantes = leer_nombres_participantes();
+				
+				for(size_t i= 0; i<lista_participantes.size(); i++){
+					cout << "Participante [" << i+1 << "] : " << lista_participantes[i] << endl;
+				}
+				exit(EXIT_SUCCESS);// se le coloca esto porque si no queda con un ciclo infinito por la señal
+				break;
+			};
+			case 3:
+				leer_archivo(INSTRUCCIONES_ARCHIVO);
+				exit(EXIT_SUCCESS);// se le coloca esto porque si no queda con un ciclo infinito por la señal
+				break;
 			case 4:
 				salir = true;
 				break;
@@ -431,4 +472,63 @@ bool movimiento_peon(Tablero *tablero_ajedrez, Posicion origen, Posicion destino
 	}
 	
 	return mover_peon;
+}
+
+void escribir_archivo(Jugador jugador){
+	
+	ofstream archivo(PARTICIPANTES, ios::app);
+	
+	if (archivo)
+	{
+		archivo << jugador.nombre << endl;
+	}
+	else{
+		cout << " NO SE ENCONTRO EL ARCHIVO"<<endl;
+	}
+	archivo.close();
+	
+}
+
+
+void leer_archivo(const char *nom_archivo){
+	
+	ifstream archivo(nom_archivo); 
+	
+	string buffer;
+	
+	if(archivo){
+		while(archivo && getline(archivo, buffer)){
+			if (buffer.length() == 0){
+				continue;
+			}
+			cout << buffer << endl;
+		}
+	}
+	else{
+		cout << " NO SE ENCONTRO EL ARCHIVO"<<endl;
+	}
+	archivo.close();
+}
+
+VectorNombres leer_nombres_participantes(){
+	ifstream archivo(PARTICIPANTES); 
+	
+	string buffer;
+	
+	VectorNombres vector_tmp;
+	
+	if(archivo){
+		while(archivo && getline(archivo, buffer)){
+			if (buffer.length() == 0){
+				continue;
+			}
+			vector_tmp.push_back(buffer);
+		}
+	}
+	else{
+		cout << " NO SE ENCONTRO EL ARCHIVO"<<endl;
+	}
+	archivo.close();
+	
+	return vector_tmp;
 }
