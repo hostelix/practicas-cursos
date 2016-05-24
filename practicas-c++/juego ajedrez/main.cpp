@@ -1,6 +1,7 @@
 #include <iostream>
 #include <signal.h>
-#include <array>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -48,16 +49,12 @@ typedef struct {
 
 void senal_terminar_programa(int senal)
 {
-	int respuesta = 0;
 	if (senal == SIGINT){
-		cout << "Desea salir del programa? SI[1] - NO[0]" << endl;
-		cin >> respuesta;
-		
-		if(respuesta){
-			exit(EXIT_SUCCESS);
-		}
+		cout << endl << "Se presiono CTRL + C Saliendo del programa . . . ." << endl;
+		exit(EXIT_SUCCESS);
 	}
 }
+
 void llenar_tablero(Tablero *tablero_ajedrez){
 	for(int fila = 0; fila < MAX; fila++){
 		for(int colum = 0; colum < MAX; colum++){
@@ -170,6 +167,29 @@ void mover_pieza(Tablero *tablero_ajedrez,Posicion origen, Posicion destino){
 	cambio_piezas(tablero_ajedrez,origen,destino);
 }
 
+Posicion leer_posicion(){
+	Posicion tmp;
+	do{
+		cout << "Introduzca la fila >"; cin >> tmp.x;
+		cout << "Introduzca la columna >"; cin >> tmp.y;
+		
+		tmp.x = tmp.x - 1; //REstandole -1 porque en el tablero que se muestra las posiciones comienzan en 1
+		tmp.y = tmp.y - 1; //REstandole -1 porque en el tablero que se muestra las posiciones comienzan en 1
+		
+		if(!(tmp.x < MAX && tmp.x >= 0) && !(tmp.y < MAX && tmp.y >= 0)){
+			cout << "Error, Intente nuevamente" << endl;
+		}
+	}while(!(tmp.x < MAX && tmp.x >= 0) && !(tmp.y < MAX && tmp.y >= 0));
+	
+	return tmp;
+}
+
+void pausar(const char *mensaje){
+	setbuf(stdin, NULL);
+	cout << mensaje << endl;
+	getchar();
+}
+
 
 
 int main()
@@ -177,9 +197,9 @@ int main()
 	Tablero *tablero_juego = new Tablero;
 	int opcion;
 	bool salir = false;
+	Posicion posicion_origen_mover, posicion_destino_mover;
 	
-	llenar_tablero(tablero_juego);
-	
+	llenar_tablero(tablero_juego); // iniciamos el tablero
 	
 	cout << "Bienvenido al juego de ajedrez" << endl << endl;
 	cout << "1)Comenzar a jugar" << endl;
@@ -200,12 +220,33 @@ int main()
 				
 				//Bucle infinito para la senal
 				while(1){
-					
+					do{
+						system("clear");
+						cout << "---------------------------------------------------------------" << endl;
+						cout << "# # # # # # # #  PRESIONE CTRL + C PARA SALIR # # # # # # # # " << endl;
+						cout << "---------------------------------------------------------------" << endl;
+						
+						mostrar_tablero(tablero_juego);//Mostramos el tablero
+						
+						cout << "Introduce la posicion de la pieza que desea mover" << endl;
+						posicion_origen_mover = leer_posicion();
+						
+						cout << "Introduce la posicion a donde movera la pieza" << endl;
+						posicion_destino_mover = leer_posicion();
+						
+						//Movemos la pieza a la posicion
+						mover_pieza(tablero_juego, posicion_origen_mover, posicion_destino_mover);
+						
+						
+					}while(true);
 				}
 				break;
 			};
 			case 4:
 				salir = true;
+				break;
+			default:
+				cout << "Opcion invalida intente nuevamente" << endl;
 				break;
 		}
 	} while(!salir);
