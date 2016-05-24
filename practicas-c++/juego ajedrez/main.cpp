@@ -24,6 +24,9 @@ using namespace std;
 #define COLOR_ROJO     91
 #define COLOR_VERDE    92
 
+#define COLOR_JUGADOR_A COLOR_ROJO
+#define COLOR_JUGADOR_B COLOR_VERDE
+
 
 #define IMPRIME_COLOR_PIEZA(color, texto) printf("\x1b[%dm%s\x1b[0m",color, texto)
 
@@ -36,6 +39,11 @@ typedef struct{
 typedef struct {
 	Pieza tabla[MAX][MAX];
 }Tablero;
+
+typedef struct {
+	int x;
+	int y;
+}Posicion;
 
 
 void senal_terminar_programa(int senal)
@@ -56,58 +64,57 @@ void llenar_tablero(Tablero *tablero_ajedrez){
 			//Peones
 			if(fila == 1){
 				tablero_ajedrez->tabla[fila][colum].pieza = PEON;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_A;
 			}
 			else if(fila == 6){
 				tablero_ajedrez->tabla[fila][colum].pieza = PEON;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_B;
 			}
-			
 			//Torres
 			else if((fila == 0 && colum == 0) || (fila == 0 && colum == 7)){
 				tablero_ajedrez->tabla[fila][colum].pieza = TORRE;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_A;
 			}
 			else if((fila == 7 && colum == 0)|| (fila == 7 && colum == 7)){
 				tablero_ajedrez->tabla[fila][colum].pieza = TORRE;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_B;
 			}
 			//Caballos
 			else if((fila == 0 && colum == 1) || (fila == 0 && colum == 6)){
 				tablero_ajedrez->tabla[fila][colum].pieza = CABALLO;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_A;
 			}
 			else if((fila == 7 && colum == 1) || (fila == 7 && colum == 6)){
 				tablero_ajedrez->tabla[fila][colum].pieza = CABALLO;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_B;
 			}
 			//Alfiles
 			else if((fila == 0 && colum == 2) || (fila == 0 && colum == 5)){
 				tablero_ajedrez->tabla[fila][colum].pieza = ALFIL;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_A;
 			}
 			else if((fila == 7 && colum == 2) || (fila == 7 && colum == 5)){
 				tablero_ajedrez->tabla[fila][colum].pieza = ALFIL;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_B;
 			}
 			//Reina
 			else if((fila == 0 && colum == 3)){
 				tablero_ajedrez->tabla[fila][colum].pieza = REINA;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_A;
 				
 			}
 			else if((fila == 7 && colum == 3)){
 				tablero_ajedrez->tabla[fila][colum].pieza = REINA;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_B;
 			}
 			//Rey
 			else if((fila == 0 && colum == 4)){
 				tablero_ajedrez->tabla[fila][colum].pieza = REY;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_ROJO;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_A;
 			}
 			else if((fila == 7 && colum == 4)){
 				tablero_ajedrez->tabla[fila][colum].pieza = REY;
-				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_VERDE;
+				tablero_ajedrez->tabla[fila][colum].color_pieza = COLOR_JUGADOR_B;
 			}
 			else{
 				tablero_ajedrez->tabla[fila][colum].pieza = VACIO;
@@ -116,7 +123,13 @@ void llenar_tablero(Tablero *tablero_ajedrez){
 	}
 }
 void mostrar_tablero(Tablero *tablero_ajedrez){
+	
+	cout << "  "; for(int i=0; i<MAX; i++){ cout << " " << i+1 << " " ;} cout << endl; // Para imprimir los numeros indicadores arriba del tablero
+	
 	for(int fila = 0; fila < MAX; fila++){
+		
+		cout << fila+1 << " "; // Para imprimir los numero indicadores del lado izquierdo del tablero
+		
 		for(int colum = 0; colum < MAX; colum++){
 			switch(tablero_ajedrez->tabla[fila][colum].pieza){
 				case PEON:
@@ -146,24 +159,57 @@ void mostrar_tablero(Tablero *tablero_ajedrez){
 	}
 }
 
+void cambio_piezas(Tablero *tablero_ajedrez,Posicion origen, Posicion destino){
+	Pieza tmp;
+	tmp = tablero_ajedrez->tabla[origen.x][origen.y];
+	tablero_ajedrez->tabla[origen.x][origen.y] = tablero_ajedrez->tabla[destino.x][destino.y];
+	tablero_ajedrez->tabla[destino.x][destino.y] = tmp;
+}
+
+void mover_pieza(Tablero *tablero_ajedrez,Posicion origen, Posicion destino){
+	cambio_piezas(tablero_ajedrez,origen,destino);
+}
+
 
 
 int main()
-{/*
-	//Se llama la funcion signal que escuchara el SIGINT
-	signal(SIGINT, senal_terminar_programa);
-	
-	//Bucle infinito para la senal
-	while(1){
-		
-	}*/
-	
+{
 	Tablero *tablero_juego = new Tablero;
+	int opcion;
+	bool salir = false;
 	
 	llenar_tablero(tablero_juego);
 	
-	mostrar_tablero(tablero_juego);
 	
+	cout << "Bienvenido al juego de ajedrez" << endl << endl;
+	cout << "1)Comenzar a jugar" << endl;
+	cout << "2)Ver puntajes" << endl;
+	cout << "3)Intrucciones" << endl;
+	cout << "4)Salir" << endl;
+	cout << ">"; cin >> opcion;
+	
+	do{
+		switch(opcion){
+			
+			case 1:{
+				
+				//Se llama la funcion signal que escuchara el SIGINT
+				signal(SIGINT, senal_terminar_programa);
+				
+				mostrar_tablero(tablero_juego); //Mostramos el tablero de juego
+				
+				//Bucle infinito para la senal
+				while(1){
+					
+				}
+				break;
+			};
+			case 4:
+				salir = true;
+				break;
+		}
+	} while(!salir);
+
 	
 	return 0;
 }
