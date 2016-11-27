@@ -18,7 +18,7 @@ class Persona {
 		char *get_apellido(){
 			return this->apellido;
 		}
-		char *get_cedulda(){
+		char *get_cedula(){
 			return this->cedula;
 		}
 		
@@ -86,7 +86,7 @@ class Cliente : public Persona {
 			cout << endl;
 			cout << "Nombre: " << this->get_nombre() << endl;
 			cout << "Apellido: " << this->get_apellido() << endl;
-			cout << "Cedula: " << this->get_cedulda()<< endl;
+			cout << "Cedula: " << this->get_cedula()<< endl;
 			cout << "Periodo Alquiler: " << this->get_periodo_alquiler() << endl;
 			cout << "Creditos: " << this->get_creditos() << endl << endl;
 		}
@@ -120,7 +120,7 @@ class VectorClientes {
 			int posicion_encontrado = -1;
 			
 			for(int i=0; i<this->tamano_actual; i++){
-				if(strcmp(this->vector_[i].get_cedulda(), cedula) == 0){
+				if(strcmp(this->vector_[i].get_cedula(), cedula) == 0){
 					posicion_encontrado = i;
 					break;
 				}
@@ -147,7 +147,7 @@ class VectorClientes {
 
 void generar_recibo_recarga(Cliente client, float nuevos_creditos){
 	cout << "Cliente: " << client.get_nombre() << " " << client.get_apellido() << endl;
-	cout << "Cedula: " << client.get_cedulda() << endl;
+	cout << "Cedula: " << client.get_cedula() << endl;
 	cout << "Catidad de creditos a recargar: " << nuevos_creditos << endl;
 	cout << "Precio unitario de cada credito: " << TARIFA_CREDITO << " Bs" << endl;
 	cout << "Subtotal: " << nuevos_creditos << " x " << TARIFA_CREDITO << ": " << nuevos_creditos*TARIFA_CREDITO << " Bs"<< endl;
