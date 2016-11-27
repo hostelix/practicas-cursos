@@ -67,6 +67,9 @@ class Cliente : public Persona {
 		void agregar_creditos(float creditos){
 			this->creditos += creditos;
 		}
+		void reducir_creditos(float creditos){
+			this->creditos -= creditos;
+		}
 		void set_periodo_alquiler(int periodo){
 			this->periodo_alquiler = periodo;
 		}
@@ -152,10 +155,12 @@ class VectorClientes {
 
 class Pelicula {
 	private:
+		int identificador;
 		char nombre[70];
 		char categoria[30];
 		char tipo[20]; // Serie, Pelicula
 		bool estado; // Disponible, ocupado
+		int valor;
 	public:
 		char *get_nombre(){
 			return this->nombre;
@@ -184,6 +189,30 @@ class Pelicula {
 		void set_estado(bool estado){
 			this->estado = estado;
 		}
+		
+		void set_identificador(int identi){
+			this->identificador = identi;
+		}
+		int get_identificador(){
+			return this->identificador;
+		}
+		
+		void set_valor(int valor){
+			this->valor = valor;
+		}
+		int get_valor(){
+			return this->valor;
+		}
+		
+		void imprimir_datos(){
+			cout << endl;
+			cout << "Identificador: " << this->get_identificador()<< endl;
+			cout << "Nombre: " << this->get_nombre() << endl;
+			cout << "Categoria: " << this->get_categoria() << endl;
+			cout << "Tipo: " << this->get_tipo()<< endl;
+			cout << "Estado: " << ((this->get_estado())?("Disponible"):("No Disponible")) << endl;
+			cout << "Valor: " << this->get_valor() << endl;
+		}
 };
 
 
@@ -196,6 +225,7 @@ class VectorPeliculas{
 		
 	public:
 		void agregar_pelicula(Pelicula peli){
+			peli.set_identificador(this->posicion_actual+1);
 			this->vector_[this->posicion_actual] = peli;
 			this->posicion_actual++;
 			this->tamano_actual++;
@@ -276,6 +306,61 @@ void mostrar_clientes(VectorClientes *vector_clientes){
 	}
 }
 
+void cargar_catalogo_peliculas(VectorPeliculas *vector_peliculas){
+	
+	Pelicula tmp;
+	
+	tmp.set_nombre((char*)"Doctor Strange");
+	tmp.set_categoria((char*)"Accion");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(10);
+	vector_peliculas->agregar_pelicula(tmp);
+	
+	tmp.set_nombre((char*)"La llegada");
+	tmp.set_categoria((char*)"Drama");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(8);
+	vector_peliculas->agregar_pelicula(tmp);
+	
+	tmp.set_nombre((char*)"Escuadrón Suicida");
+	tmp.set_categoria((char*)"Fantasia");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(5);
+	vector_peliculas->agregar_pelicula(tmp);
+	
+	tmp.set_nombre((char*)"Buscando a Dory");
+	tmp.set_categoria((char*)"Animada");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(2);
+	vector_peliculas->agregar_pelicula(tmp);
+	
+	tmp.set_nombre((char*)"Interstellar");
+	tmp.set_categoria((char*)"Ciencia Ficcion");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(8);
+	vector_peliculas->agregar_pelicula(tmp);
+	
+	tmp.set_nombre((char*)"Lucifer");
+	tmp.set_categoria((char*)"Crimen");
+	tmp.set_tipo((char*)"Serie");
+	tmp.set_estado(true);
+	tmp.set_valor(12);
+	vector_peliculas->agregar_pelicula(tmp);
+	
+	tmp.set_nombre((char*)"Van Helsing");
+	tmp.set_categoria((char*)"Aventura");
+	tmp.set_tipo((char*)"Serie");
+	tmp.set_estado(true);
+	tmp.set_valor(2);
+	vector_peliculas->agregar_pelicula(tmp);
+	
+}
+
 void consultar_cliente(VectorClientes *vector_clientes){
 	char cedula_tmp[8];
 	cout << "Introduzca la cedula del cliente que desea consultar" << endl << ">";
@@ -292,6 +377,104 @@ void consultar_cliente(VectorClientes *vector_clientes){
 }
 
 
+void mostrar_peliculas(VectorPeliculas *vector_peliculas){
+	for(int i=0; i<vector_peliculas->get_tamano_vector(); i++){
+		vector_peliculas->get_pelicula(i).imprimir_datos();
+	}
+}
+
+void generar_comprobante_alquiler(int *peliculas_seleccionadas, int tam_vector, Cliente client, VectorPeliculas *vector_peliculas){
+	int total_creditos=0;
+	
+	for(int i=0; i<tam_vector; i++){
+		total_creditos += vector_peliculas->get_pelicula(peliculas_seleccionadas[i]).get_valor();
+	}
+	cout << endl << endl << "------------------------ Comprobante ----------------------------" << endl;
+	cout << "Cliente: " << client.get_nombre() << " " << client.get_apellido() << endl;
+	cout << "Cedula: " << client.get_cedula() << endl;
+	cout << "Catidad de creditos: " << total_creditos << endl;
+	cout << "Peliculas Seleccionadas" << endl;
+	for(int i=0; i<tam_vector; i++){
+		vector_peliculas->get_pelicula(peliculas_seleccionadas[i]).imprimir_datos();
+	}
+	cout << "Subtotal: " << total_creditos << " x " << TARIFA_CREDITO << ": " << total_creditos*TARIFA_CREDITO << " Bs"<< endl;
+	cout << "IVA 12%: " << total_creditos*TARIFA_CREDITO*TARIFA_IVA << " Bs" << endl;
+	cout << "Monto Total (+ IVA): " << total_creditos*TARIFA_CREDITO*(1+TARIFA_IVA) <<  " Bs" <<endl;
+	cout << "------------------------ Comprobante ----------------------------" << endl;
+}
+
+void alquilar_peliculas(VectorClientes *vector_clientes,VectorPeliculas *vector_peliculas){
+	Cliente cliente_alquiler;
+	char cedula_cliente[8];
+	int peliculas_selccionadas[10] = {0};
+	int identi, tam_vector_seleccionadas = 0, total_creditos_seleccionados=0;
+	
+	
+	cout << "Introduzca la cedula del cliente >"; cin >> cedula_cliente;
+	
+	int id_cliente = vector_clientes->buscar_cliente(cedula_cliente);
+	
+	if(id_cliente == -1){
+		cout << "No existe ningun registro con esta cedula" << endl;
+	}
+	else{
+		cliente_alquiler = vector_clientes->get_cliente(id_cliente);
+		
+		do{
+			cout << "------- Listado de peliculas -------" << endl;
+			mostrar_peliculas(vector_peliculas);
+			cout << "Seleccione las peliculas que desea, Escribiendo el identificador - Escriba 0 para salir" << endl;
+			cout << "> ";
+			cin >> identi;
+
+			if(identi != 0){
+				if(identi > vector_peliculas->get_tamano_vector()){
+					cout << "Error identificador no existe" << endl;
+				}else{
+					int id_pelicula = identi-1;
+					
+					if(vector_peliculas->get_pelicula(id_pelicula).get_estado()){
+						peliculas_selccionadas[tam_vector_seleccionadas] = id_pelicula;
+						tam_vector_seleccionadas++;
+					}
+					else{
+						cout << "Esta pelicula no esta disponible" << endl;
+					}
+					
+				}
+			}
+			
+		} while(identi != 0);
+		
+		//Sumamos todos los creditos de las peliculas seleccionadas
+		for(int i=0; i<tam_vector_seleccionadas; i++){
+			total_creditos_seleccionados += vector_peliculas->get_pelicula(peliculas_selccionadas[i]).get_valor();
+		}
+		
+		if(cliente_alquiler.get_creditos() >= total_creditos_seleccionados){
+			//Reducimos los creditos del cliente
+			vector_clientes->get_cliente(id_cliente).reducir_creditos(total_creditos_seleccionados);
+			
+			//Actualizamos el estado de las peliculas
+			for(int i=0; i<tam_vector_seleccionadas; i++){
+				Pelicula pelicula_tmp = vector_peliculas->get_pelicula(peliculas_selccionadas[i]);
+				pelicula_tmp.set_estado(false);
+				vector_peliculas->set_pelicula(pelicula_tmp,peliculas_selccionadas[i]);
+			}
+			
+			generar_comprobante_alquiler(peliculas_selccionadas,tam_vector_seleccionadas,cliente_alquiler,vector_peliculas);
+			
+		}else{
+			cout << "Creditos cliente: " << cliente_alquiler.get_creditos() << endl;
+			cout << "Total de creditos seleccionados: " << total_creditos_seleccionados << endl;
+			cout << "Lo siento usted no tiene disponibilidad de creditos" << endl;
+		}
+		
+	}
+	
+}
+
+
 int main() {
 	
 	int opcion_1, opcion_2, opcion_3;
@@ -299,6 +482,8 @@ int main() {
 	
 	VectorClientes *db_clientes = new VectorClientes;
 	VectorPeliculas *db_peliculas = new VectorPeliculas;
+	
+	cargar_catalogo_peliculas(db_peliculas);
 	
 	do{
 		cout << "|*******| Bienvenido al centro de alquiler de peliculas HEPBURN |*******|" << endl;
@@ -340,6 +525,25 @@ int main() {
 				break;
 			case 2:
 				do{
+					
+					cout << "|*******| Bienvenido al centro de alquiler de peliculas HEPBURN |*******|" << endl;
+					cout << "1) Alquilar Pelicula" << endl;
+					cout << "2) Mostrar Peliculas" << endl;
+					cout << "3) Salir" << endl;
+					
+					cin >> opcion_2;
+					
+					switch(opcion_2){
+						case 1:
+							alquilar_peliculas(db_clientes,db_peliculas);
+							break;
+						case 2:
+							mostrar_peliculas(db_peliculas);
+							break;
+						case 3:
+							salir_menu_2 = true;
+							break;
+					}
 					
 				} while(!salir_menu_2);
 				break;
