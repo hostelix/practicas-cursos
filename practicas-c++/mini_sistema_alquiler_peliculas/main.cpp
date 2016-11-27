@@ -213,6 +213,13 @@ class Pelicula {
 			cout << "Estado: " << ((this->get_estado())?("Disponible"):("No Disponible")) << endl;
 			cout << "Valor: " << this->get_valor() << endl;
 		}
+		
+		void get_datos_pelicula(){
+			cout << "Identificador: " << this->get_identificador()<< endl;
+			cout << "Nombre: " << this->get_nombre() << endl;
+			cout << "Categoria: " << this->get_categoria() << endl;
+			cout << "Tipo: " << this->get_tipo()<< endl;
+		}
 };
 
 
@@ -257,6 +264,101 @@ class VectorPeliculas{
 	
 };
 
+class Proveedor {
+	private:
+		char nombre[30];
+		char direccion[40];
+		
+		VectorPeliculas catalogo;
+		
+	public:
+		char *get_nombre(){
+			return this->nombre;
+		}
+		void set_nombre(char *nombre){
+			strcpy(this->nombre, nombre);
+		}
+		
+		char *get_direccion(){
+			return this->direccion;
+		}
+		void set_direccion(char *direccion){
+			strcpy(this->direccion, direccion);
+		}
+		
+		void mostrar_catalogo(){
+			for(int i = 0; i < this->catalogo.get_tamano_vector(); i++){
+				this->catalogo.get_pelicula(i).get_datos_pelicula();
+				cout << " -----------------------------------------------" << endl;
+			}
+		}
+		
+		void agregar_elemento_catalogo(Pelicula peli){
+			this->catalogo.agregar_pelicula(peli);
+		}
+		
+		void set_catalogo(VectorPeliculas vector){
+			this->catalogo = vector;
+		}
+		
+		VectorPeliculas get_catalogo(){
+			return this->catalogo;
+		}
+};
+
+
+class Pedido {
+	private:
+		char nombre_proveedor[30];
+		int *vector_;
+		int *vector_1;
+		int tamano;
+		int tamano_actual;
+		int posicion_actual;
+	
+	public:
+		void agregar(int elemento, int cantidad){
+			this->vector_[this->posicion_actual] = elemento;
+			this->vector_1[this->posicion_actual] = cantidad;
+			this->posicion_actual++;
+			this->tamano_actual++;
+		}
+		
+		int *get_vector(){
+			return this->vector_;
+		}
+		
+		int get_elemento(int posicion){
+			return this->vector_[posicion];
+		}
+		
+		int get_cantidad_elemento(int posicion){
+			return this->vector_1[posicion];
+		}
+		
+		void set_elemento(int elemento, int posicion){
+			this->vector_[posicion] = elemento;
+		}
+		void set_cantidad_elemento(int cantidad, int posicion){
+			this->vector_[posicion] = cantidad;
+		}
+		
+		int get_tamano_vector(){
+			return this->tamano_actual;
+		}
+		
+		void set_nombre_proveedor(char *nombre){
+			strcpy(this->nombre_proveedor, nombre);
+		}
+		
+		Pedido(){
+			this->tamano = 100;
+			this->vector_ = new int[this->tamano];
+			this->vector_1 = new int[this->tamano];
+			this->posicion_actual = 0;
+			this->tamano_actual = 0;
+		}
+};
 void generar_recibo_recarga(Cliente client, float nuevos_creditos){
 	cout << "Cliente: " << client.get_nombre() << " " << client.get_apellido() << endl;
 	cout << "Cedula: " << client.get_cedula() << endl;
@@ -358,6 +460,63 @@ void cargar_catalogo_peliculas(VectorPeliculas *vector_peliculas){
 	tmp.set_estado(true);
 	tmp.set_valor(2);
 	vector_peliculas->agregar_pelicula(tmp);
+	
+}
+
+void cargar_datos_proveedor(Proveedor *proveedor){
+	proveedor->set_nombre((char*)"Dolbydigital 5.0");
+	proveedor->set_direccion((char*)"EE.UU, California");
+	
+	Pelicula tmp;
+	
+	tmp.set_nombre((char*)"Doctor Strange");
+	tmp.set_categoria((char*)"Accion");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(10);
+	proveedor->agregar_elemento_catalogo(tmp);
+	
+	tmp.set_nombre((char*)"La llamada");
+	tmp.set_categoria((char*)"Drama");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(8);
+	proveedor->agregar_elemento_catalogo(tmp);
+	
+	tmp.set_nombre((char*)"Batman");
+	tmp.set_categoria((char*)"Fantasia");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(5);
+	proveedor->agregar_elemento_catalogo(tmp);
+	
+	tmp.set_nombre((char*)"En Busca de la felicidad");
+	tmp.set_categoria((char*)"Familia");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(2);
+	proveedor->agregar_elemento_catalogo(tmp);
+	
+	tmp.set_nombre((char*)"");
+	tmp.set_categoria((char*)"Ciencia Ficcion");
+	tmp.set_tipo((char*)"Pelicula");
+	tmp.set_estado(true);
+	tmp.set_valor(8);
+	proveedor->agregar_elemento_catalogo(tmp);
+	
+	tmp.set_nombre((char*)"CIC");
+	tmp.set_categoria((char*)"Crimen");
+	tmp.set_tipo((char*)"Serie");
+	tmp.set_estado(true);
+	tmp.set_valor(12);
+	proveedor->agregar_elemento_catalogo(tmp);
+	
+	tmp.set_nombre((char*)"The Walking Dead");
+	tmp.set_categoria((char*)"Aventura");
+	tmp.set_tipo((char*)"Serie");
+	tmp.set_estado(true);
+	tmp.set_valor(2);
+	proveedor->agregar_elemento_catalogo(tmp);
 	
 }
 
@@ -474,6 +633,57 @@ void alquilar_peliculas(VectorClientes *vector_clientes,VectorPeliculas *vector_
 	
 }
 
+void generar_pedido_proveedor(Proveedor *proveedor, Pedido *pedido){
+	int identi, cantidad_solicitada;
+	
+	pedido->set_nombre_proveedor(proveedor->get_nombre());
+	
+	do{
+		cout << "------- Catalogos de peliculas -------" << endl;
+		proveedor->mostrar_catalogo();
+		cout << "Seleccione las peliculas que desea, Escribiendo el identificador - Escriba 0 para salir" << endl;
+		cout << "> ";
+		cin >> identi;
+		
+		if(identi != 0){
+			if(identi > proveedor->get_catalogo().get_tamano_vector()){
+				cout << "Error identificador no existe" << endl;
+			}else{
+				int id_pelicula = identi-1;
+				
+				cout << "Ingrese la cantidad que desea solicitar >";
+				cin >> cantidad_solicitada;
+				pedido->agregar(id_pelicula, cantidad_solicitada);
+			}
+		}
+		
+	} while(identi != 0);
+	
+	cout << "######################################################" << endl;
+	cout << "Orden realizada con exito, Se ha enviado al proveedor" << endl;
+	cout << "Seleccione la opcion 2 del menu para ver su pedido" << endl;
+	cout << "######################################################" << endl;
+}
+
+void mostrar_pedidos_proveedor(Proveedor *proveedor, Pedido *pedido){
+	cout << " - - - - - - - Comprobante de pedido - - - - - - - " << endl;
+	cout << "Proveedor: " << proveedor->get_nombre() << endl;
+	cout << "Direccion: " << proveedor->get_direccion() << endl;
+	cout << " ------- Lista de peliculas ordenadas -------"  << endl;
+	
+	if(pedido->get_tamano_vector()){
+		for(int i=0; i<pedido->get_tamano_vector(); i++){
+			cout << "--------------------------------------------------" << endl;
+			proveedor->get_catalogo().get_pelicula(pedido->get_elemento(i)).get_datos_pelicula();
+			cout << "Cantidad solicitada: " << pedido->get_cantidad_elemento(i) << endl;
+			cout << "--------------------------------------------------" << endl;
+		}	
+	}
+	else{
+		cout << "No se han seleccionado elementos del catalogo" << endl << endl;
+	}
+	
+}
 
 int main() {
 	
@@ -482,8 +692,11 @@ int main() {
 	
 	VectorClientes *db_clientes = new VectorClientes;
 	VectorPeliculas *db_peliculas = new VectorPeliculas;
+	Proveedor *proveedor = new Proveedor;
+	Pedido *pedido = new Pedido;
 	
 	cargar_catalogo_peliculas(db_peliculas);
+	cargar_datos_proveedor(proveedor);
 	
 	do{
 		cout << "|*******| Bienvenido al centro de alquiler de peliculas HEPBURN |*******|" << endl;
@@ -549,6 +762,24 @@ int main() {
 				break;
 			case 3:
 				do{
+					cout << "|*******| Bienvenido al centro de alquiler de peliculas HEPBURN |*******|" << endl;
+					cout << "1) Generar pedido a proveedor" << endl;
+					cout << "2) Mostrar pedidos" << endl;
+					cout << "3) Salir" << endl;
+					
+					cin >> opcion_2;
+					
+					switch(opcion_2){
+						case 1:
+							generar_pedido_proveedor(proveedor, pedido);
+							break;
+						case 2:
+							mostrar_pedidos_proveedor(proveedor, pedido);
+							break;
+						case 3:
+							salir_menu_2 = true;
+							break;
+					}
 					
 				} while(!salir_menu_2);
 				break;
