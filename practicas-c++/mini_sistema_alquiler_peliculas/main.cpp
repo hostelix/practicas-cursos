@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string.h>
 using namespace std;
 
@@ -136,6 +137,10 @@ class VectorClientes {
 			this->vector_[posicion] = client;
 		}
 		
+		int get_tamano_vector(){
+			return this->tamano_actual;
+		}
+		
 	VectorClientes(){
 		this->tamano = 100;
 		this->vector_ = new Cliente[this->tamano];
@@ -143,6 +148,83 @@ class VectorClientes {
 		this->tamano_actual = 0;
 	}
 		
+};
+
+class Pelicula {
+	private:
+		char nombre[70];
+		char categoria[30];
+		char tipo[20]; // Serie, Pelicula
+		bool estado; // Disponible, ocupado
+	public:
+		char *get_nombre(){
+			return this->nombre;
+		}
+		void set_nombre(char *nombre){
+			strcpy(this->nombre, nombre);
+		}
+		
+		char *get_categoria(){
+			return this->categoria;
+		}
+		void set_categoria(char *categoria){
+			strcpy(this->categoria, categoria);
+		}
+		
+		char *get_tipo(){
+			return this->tipo;
+		}
+		void set_tipo(char *tipo){
+			strcpy(this->tipo, tipo);
+		}
+		
+		bool get_estado(){
+			return this->estado;
+		}
+		void set_estado(bool estado){
+			this->estado = estado;
+		}
+};
+
+
+class VectorPeliculas{
+	private:
+		Pelicula *vector_;
+		int tamano;
+		int tamano_actual;
+		int posicion_actual;
+		
+	public:
+		void agregar_pelicula(Pelicula peli){
+			this->vector_[this->posicion_actual] = peli;
+			this->posicion_actual++;
+			this->tamano_actual++;
+		}
+		
+		Pelicula *get_vector(){
+			return this->vector_;
+		}
+		
+
+		Pelicula get_pelicula(int posicion){
+			return this->vector_[posicion];
+		}
+		
+		void set_pelicula(Pelicula peli, int posicion){
+			this->vector_[posicion] = peli;
+		}
+		
+		int get_tamano_vector(){
+			return this->tamano_actual;
+		}
+		
+		VectorPeliculas(){
+			this->tamano = 100;
+			this->vector_ = new Pelicula[this->tamano];
+			this->posicion_actual = 0;
+			this->tamano_actual = 0;
+		}
+	
 };
 
 void generar_recibo_recarga(Cliente client, float nuevos_creditos){
@@ -180,13 +262,35 @@ void recargar_clientes(VectorClientes *vector_clientes){
 		cout << "Introduzca la cantidad de creditos que desea recargar" << endl;
 		cin >> creditos_tmp;
 		
+		cliente_recarga.agregar_creditos(creditos_tmp);
+		
 		generar_recibo_recarga(cliente_recarga, creditos_tmp);
 		
 		vector_clientes->set_cliente(cliente_recarga, id_cliente);
 	}
 }
 
-void mostrar_clientes(VectorClientes *vector_clientes){}
+void mostrar_clientes(VectorClientes *vector_clientes){
+	for(int i=0; i<vector_clientes->get_tamano_vector(); i++){
+		vector_clientes->get_cliente(i).imprimir_datos();
+	}
+}
+
+void consultar_cliente(VectorClientes *vector_clientes){
+	char cedula_tmp[8];
+	cout << "Introduzca la cedula del cliente que desea consultar" << endl << ">";
+	cin >> cedula_tmp;
+	
+	int id_cliente = vector_clientes->buscar_cliente(cedula_tmp);
+	
+	if(id_cliente == -1){
+		cout << "No existe ningun registro con esta cedula" << endl;
+	}
+	else{
+		vector_clientes->get_cliente(id_cliente).imprimir_datos();
+	}
+}
+
 
 int main() {
 	
@@ -194,6 +298,7 @@ int main() {
 	bool salir_menu_1 = false, salir_menu_2 = false;
 	
 	VectorClientes *db_clientes = new VectorClientes;
+	VectorPeliculas *db_peliculas = new VectorPeliculas;
 	
 	do{
 		cout << "|*******| Bienvenido al centro de alquiler de peliculas HEPBURN |*******|" << endl;
@@ -244,9 +349,7 @@ int main() {
 				} while(!salir_menu_2);
 				break;
 			case 4:
-				do{
-					
-				} while(!salir_menu_2);
+				consultar_cliente(db_clientes);
 				break;
 			case  5:
 				salir_menu_1 = true;
