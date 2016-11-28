@@ -25,6 +25,14 @@ typedef vector<ProductoCarrito> ArrayCarritoCompra;
 typedef vector<Pedido> ArrayPedidos;
 typedef vector<Factura> ArrayFacturas;
 
+char *obtener_fecha() {
+	int MAXLEN = 80;
+	char *s = new char[MAXLEN];
+	time_t t = time(0);
+	strftime(s, MAXLEN, "%m-%d-%Y", localtime(&t));
+	return s;
+}
+
 class Fecha{
 	int dia, mes, anio;
 	
@@ -319,7 +327,7 @@ class Pedido {
 		Cliente cliente_pedido;
 		int facturado;
 		int num_pedido;
-		Fecha fecha_pedido;
+		char *fecha_pedido;
 		Bodega *bodegon;
 		
 	public:
@@ -361,11 +369,19 @@ class Pedido {
 		int get_facturado(){
 			return this->facturado;
 		}
+		
+		void generar_fecha(){
+			strcpy(this->fecha_pedido, obtener_fecha());
+		}
+		char *get_fecha(){
+			return this->fecha_pedido;
+		}
 	
 	Pedido(){
 		this->facturado = 0;
 		this->bodegon = new Bodega;
 		this->num_pedido = rand();
+		this->generar_fecha();
 	}
 };
 
@@ -373,20 +389,21 @@ class Factura{
 	private:
 		int num_factura;
 		Pedido pedido;
-		Fecha fecha_factura;
+		char* fecha_factura;
 	public:
 		void set_pedido(Pedido pedido){
 			this->pedido = pedido;
 		}
-		void generar_hora(){
-			
+		void generar_fecha(){
+			strcpy(this->fecha_factura, obtener_fecha());
 		}
 		char *get_fecha(){
-			return (char*)"";
+			return this->fecha_factura;
 		}
 	
 	Factura(){
 		this->num_factura = rand();
+		this->generar_fecha();
 	}
 	
 };
@@ -455,7 +472,7 @@ void proceso_compra(ArrayInventario *array_inventario, ArrayPedidos *array_pedid
 		
 		if(opcion_producto != -1){
 			
-			if(opcion_producto > 0 && opcion_producto < array_inventario->size()){
+			if(opcion_producto > 0 && opcion_producto < (int)array_inventario->size()){
 				
 				cout << "Ingrese la cantidad que requiere > "; cin >> cantidad_solicitada;
 				
@@ -641,6 +658,7 @@ void mostrar_pedidos(ArrayPedidos *pedidos){
 		
 		cout << "_______________-PEDIDO Nro " << num_pedido << " -_________________" << endl;
 		cout << "Codigo Pedido: " << pedido.get_num_pedido() << endl;
+		cout << "Fecha: " << pedido.get_fecha() << endl;
 		cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
 		cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
 		cout << "Direccion Envio: " << pedido.direccion << endl;
@@ -657,9 +675,11 @@ void imprimir_factura(Pedido pedido){
 	ProductoCarrito elemento;
 	ArrayCarritoCompra *carrito = pedido.get_carrito();
 	Factura nueva_factura;
+	nueva_factura.generar_fecha();
 	
 	cout << "====================================================================" << endl;
 	cout << "Codigo Factura: " << nueva_factura.get_fecha() << endl;
+	cout << "Fecha: " << nueva_factura.get_fecha() << endl;
 	cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
 	cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
 	cout << "Direccion Envio: " << pedido.direccion << endl;
@@ -695,7 +715,25 @@ void procesar_pedidos(ArrayPedidos *pedidos, ArrayFacturas *facturas){
 	}
 }
 
-
+void mostrar_pedidos_sin_facturar(ArrayPedidos *pedidos){
+	int num_pedido = 0;
+	for(ArrayPedidos::iterator i = pedidos->begin(); i!=pedidos->end(); i++){
+		Pedido pedido = (*i);
+		if(pedido.get_facturado() == 2){
+			cout << "_______________-PEDIDO Nro " << num_pedido << " -_________________" << endl;
+			cout << "Codigo Pedido: " << pedido.get_num_pedido() << endl;
+			cout << "Fecha: " << pedido.get_fecha() << endl;
+			cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
+			cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
+			cout << "Direccion Envio: " << pedido.direccion << endl;
+			cout << "Correo: " << pedido.get_cliente().get_correo() << endl;
+			cout << "Es Regalo: " << ((pedido.es_regalo == 1)?("SI"):("NO")) << endl;
+			cout << "Facturado: " << ((pedido.get_facturado() == 1)?("SI"):("NO")) << endl;
+			imprimir_total_carrito(pedido.get_carrito());
+			num_pedido++;
+		}
+	}
+}
 
 int main(int argc, char *argv[]) {
 	
@@ -719,7 +757,8 @@ int main(int argc, char *argv[]) {
 		cout << "2) Compra de vino" << endl;
 		cout << "3) Mostrar pedidos" << endl;
 		cout << "4) Procesar Pedidos" << endl;
-		cout << "5) Salir" << endl;
+		cout << "5) Mostar pedidos sin facturar" << endl;
+		cout << "6) Salir" << endl;
 		cin >> opcion;
 		
 		switch(opcion){
@@ -754,6 +793,9 @@ int main(int argc, char *argv[]) {
 				procesar_pedidos(v_pedidos, v_facturas);
 				break;
 			case 5:
+				mostrar_pedidos_sin_facturar(v_pedidos);
+				break;
+			case 6:
 				exit = 1;
 				break;
 		}
