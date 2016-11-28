@@ -10,6 +10,19 @@ using namespace std;
 #define BOTELLA 1
 #define CAJA_BOTELLA 2
 
+
+class PersonaJuridica;
+class PersonaNatural;
+class ProductoInventario;
+class ProductoCarrito;
+class Pedido;
+
+typedef vector<PersonaNatural> ArrayClientesPersonas;
+typedef vector<PersonaJuridica> ArrayClientesEmpresas;
+typedef vector<ProductoInventario> ArrayInventario;
+typedef vector<ProductoCarrito> ArrayCarritoCompra;
+typedef vector<Pedido> ArrayPedidos;
+
 class Fecha{
 	int dia, mes, anio;
 	
@@ -187,6 +200,10 @@ class Cliente {
 			return this->telefono;
 		}
 		
+		char *get_direccion(){
+			return this->direccion;
+		}
+		
 		void set_nombre(char *nombre){
 			strcpy(this->nombre, nombre);
 		}
@@ -293,10 +310,37 @@ class ProductoCarrito {
 	}
 };
 
-typedef vector<PersonaNatural> ArrayClientesPersonas;
-typedef vector<PersonaJuridica> ArrayClientesEmpresas;
-typedef vector<ProductoInventario> ArrayInventario;
-typedef vector<ProductoCarrito> ArrayCarritoCompra;
+class Pedido {
+	private:
+		ArrayCarritoCompra *carrito;
+		Cliente cliente_pedido;
+		
+	public:
+		int es_regalo;
+		char direccion[30];
+		
+		ArrayCarritoCompra *get_carrito(){
+			return this->carrito;
+		}
+		void set_carrito(ArrayCarritoCompra *carrito){
+			this->carrito = carrito;
+		}
+		
+		void set_direccion_envio(char *direccion){
+			strcpy(this->direccion, direccion);
+		}
+		
+		void set_cliente(Cliente cliente){
+			this->cliente_pedido = cliente;
+		}
+		Cliente get_cliente(){
+			return this->cliente_pedido;
+		}
+	
+	Pedido(){}
+};
+
+
 
 void registrar_cliente_persona(ArrayClientesPersonas *array){
 
@@ -331,12 +375,87 @@ void imprimir_total_carrito(ArrayCarritoCompra *carrito){
 	cout << "====================================================================" << endl;
 }
 
-void proceso_compra_empresa(ArrayClientesEmpresas *array, ArrayInventario *array_inventario){
-	char rif[15];
-	int encontrado = 0;
+void proceso_compra(ArrayClientesEmpresas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos, Cliente cliente_compra){
+	
+	
+
 	int indice = 0, opcion_producto = -1, cantidad_solicitada = 0, tipo_tarjeta = 0;
 	int es_regalo = 0;
-	char tarjeta_credito[20], direccion_regalo[20];
+	char tarjeta_credito[20], direccion_regalo[30];
+	
+	ArrayCarritoCompra *carrito = new ArrayCarritoCompra;
+	Pedido nuevo_pedido;
+	
+	do{
+		cout << "***********************************************************" << endl;
+		cout << "Catalogo de vinos" << endl;
+		
+		indice = 0;
+		for(ArrayInventario::iterator i = array_inventario->begin();i!=array_inventario->end(); i++){
+			cout << "---------------- Numero de producto " << indice <<  "----------------" << endl;
+			(*i).imprimir_datos();
+			indice++;
+		}
+		
+		imprimir_total_carrito(carrito);
+		
+		cout <<  "Selecciona el producto por el numero que esta en la parte de arriba de cada uno"  << endl;
+		cout << "Para confimar su cuenta escriba -1" << endl;
+		cin >> opcion_producto;
+		
+		if(opcion_producto != -1){
+			
+			if(opcion_producto > 0 && opcion_producto < array_inventario->size()){
+				
+				cout << "Ingrese la cantidad que requiere > "; cin >> cantidad_solicitada;
+				
+				if(cantidad_solicitada > array_inventario->at(opcion_producto).cantidad_disponible){
+					cout << endl << "?????????????????????????????"<< endl;
+					cout << "La cantidad solicitada excede a la existente" << endl;
+					cout << "No hay disponibilidad para esta producto" << endl;
+					cout << "?????????????????????????????"<< endl;
+				}else{
+					carrito->push_back( ProductoCarrito(array_inventario->at(opcion_producto),cantidad_solicitada) );
+				}
+			}else{
+				cout << endl << "?????????????????????????????"<< endl;
+				cout << "Numero de Producto incorrecto" << endl;
+				cout << "?????????????????????????????"<< endl;
+			}
+		}
+	} while(opcion_producto != -1);
+	
+	if(carrito->size() != 0){
+		cout << "Porfavor Ingrese los datos de la tarjeta de credito" << endl;
+		cin >> tarjeta_credito;
+		cout << "1) MasterCard 2) Visa 3) AmericanExpress 4) Otros" << endl;
+		cin >> tipo_tarjeta;
+		
+		cout << "Verificando datos con la entidad bancaria . . . . . . . .  OK." << endl << endl;
+		
+		cout << "La compra es un regalo? 1)SI 2)NO >"; cin >> es_regalo;
+		if(es_regalo == 1){
+			cout << "Introduzca la direccion de envio > "; cin >> direccion_regalo;
+			nuevo_pedido.set_direccion_envio(direccion_regalo);
+		}else{
+			nuevo_pedido.set_direccion_envio(cliente_compra.get_direccion());
+		}
+		
+		nuevo_pedido.es_regalo = es_regalo;
+		nuevo_pedido.set_carrito(carrito);
+		nuevo_pedido.set_cliente(cliente_compra);
+		
+		array_pedidos->push_back(nuevo_pedido);
+		
+		cout << "*********************************" << endl;
+		cout << "Su pedido fue realizado con exito" << endl;
+		cout << "*********************************" << endl;
+	}
+}
+
+void proceso_compra_empresa(ArrayClientesEmpresas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos){
+	char rif[15];
+	int encontrado = 0;
 	
 	cout << "Ingrese el rif del cliente" << endl;
 	cin >> rif;
@@ -352,66 +471,38 @@ void proceso_compra_empresa(ArrayClientesEmpresas *array, ArrayInventario *array
 	}
 	
 	if(encontrado){
-		ArrayCarritoCompra *carrito = new ArrayCarritoCompra;
-		
-		do{
-			cout << "***********************************************************" << endl;
-			cout << "Catalogo de vinos" << endl;
-			
-			indice = 0;
-			for(ArrayInventario::iterator i = array_inventario->begin();i!=array_inventario->end(); i++){
-				cout << "---------------- Numero de producto " << indice <<  "----------------" << endl;
-				(*i).imprimir_datos();
-				indice++;
-			}
-			
-			imprimir_total_carrito(carrito);
-			
-			cout <<  "Selecciona el producto por el numero que esta en la parte de arriba de cada uno"  << endl;
-			cout << "Para confimar su cuenta escriba -1" << endl;
-			cin >> opcion_producto;
-			
-			if(opcion_producto != -1){
-				
-				if(opcion_producto > 0 && opcion_producto < array_inventario->size()){
-					
-					cout << "Ingrese la cantidad que requiere > "; cin >> cantidad_solicitada;
-					
-					if(cantidad_solicitada > array_inventario->at(opcion_producto).cantidad_disponible){
-						cout << endl << "?????????????????????????????"<< endl;
-						cout << "La cantidad solicitada excede a la existente" << endl;
-						cout << "No hay disponibilidad para esta producto" << endl;
-						cout << "?????????????????????????????"<< endl;
-					}else{
-						carrito->push_back( ProductoCarrito(array_inventario->at(opcion_producto),cantidad_solicitada) );
-					}
-				}else{
-					cout << endl << "?????????????????????????????"<< endl;
-					cout << "Numero de Producto incorrecto" << endl;
-					cout << "?????????????????????????????"<< endl;
-				}
-			}
-		} while(opcion_producto != -1);
-		
-		if(carrito->size() != 0){
-			cout << "Porfavor Ingrese los datos de la tarjeta de credito" << endl;
-			cin >> tarjeta_credito;
-			cout << "1) MasterCard 2) Visa 3) AmericanExpress 4) Otros" << endl;
-			cout << tipo_tarjeta;
-			
-			cout << "Verificando datos con la entidad bancaria . . . . . . . .  OK." << endl << endl;
-			
-			cout << "La compra es un regalo? 1)SI 2)NO >"; cin >> es_regalo;
-			if(es_regalo == 1){
-				cout << "Introduzca la direccion de envio > "; cin >> direccion_regalo;
-			}
-			
-			
-		}
+		proceso_compra(array, array_inventario, array_pedidos, cliente_compra);
 		
 	}else{
 		cout << endl << "?????????????????????????????"<< endl;
 		cout << "No se ha encontrado ningun cliente con este rif, registrelo en la opcion 1 del menu" << endl;
+		cout << "?????????????????????????????"<< endl;
+	}
+}
+
+void proceso_compra_persona(ArrayClientesPersonas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos){
+	char cedula[8];
+	int encontrado = 0;
+	
+	cout << "Ingrese la cedula del cliente" << endl;
+	cin >> cedula;
+	
+	PersonaNatural cliente_compra;
+	
+	for(ArrayClientesPersonas::iterator i = array->begin();i!=array->end(); i++){
+		if(strcmp((*i).get_cedula(), cedula == 0){
+			cliente_compra = *i;
+			encontrado = 1;
+			break;
+		}
+	}
+	
+	if(encontrado){
+		proceso_compra(array, array_inventario, array_pedidos, cliente_compra);
+		
+	}else{
+		cout << endl << "?????????????????????????????"<< endl;
+		cout << "No se ha encontrado ningun cliente con esta cedula, registrelo en la opcion 1 del menu" << endl;
 		cout << "?????????????????????????????"<< endl;
 	}
 }
@@ -494,6 +585,7 @@ int main(int argc, char *argv[]) {
 	ArrayClientesPersonas *v_clientes_per = new ArrayClientesPersonas;
 	ArrayClientesEmpresas *v_clientes_emp = new ArrayClientesEmpresas;
 	ArrayInventario *v_inventario = new ArrayInventario;
+	ArrayPedidos *v_pedidos = new ArrayPedidos;
 	
 	cargar_catalogo_inventario(v_inventario);
 	
@@ -503,7 +595,8 @@ int main(int argc, char *argv[]) {
 		cout << "######################################################" << endl;
 		cout << "1) Registro de clientes en el sistema" << endl;
 		cout << "2) Compra de vino" << endl;
-		cout << "3) Salir" << endl;
+		cout << "3) Mostrar pedidos" << endl;
+		cout << "4) Salir" << endl;
 		cin >> opcion;
 		
 		switch(opcion){
@@ -522,16 +615,19 @@ int main(int argc, char *argv[]) {
 			case 2:
 				resp = menu_tipo_cliente();
 				if(resp == CLIENTE_PERSONA){
-					registrar_cliente_empresa(v_clientes_emp);
+					//proceso_compra_persona(v_clientes_per, v_inventario, v_pedidos);
 				}
 				else if(resp == CLIENTE_EMPRESA){
-					proceso_compra_empresa(v_clientes_emp, v_inventario);
+					proceso_compra_empresa(v_clientes_emp, v_inventario, v_pedidos);
 				}
 				else{
 					cout << "Tipo de cliente desconocido" << endl;
 				}
 				break;
 			case 3:
+				
+				break;
+			case 4:
 				exit = 1;
 				break;
 		}
