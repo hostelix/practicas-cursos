@@ -16,12 +16,14 @@ class PersonaNatural;
 class ProductoInventario;
 class ProductoCarrito;
 class Pedido;
+class Factura;
 
 typedef vector<PersonaNatural> ArrayClientesPersonas;
 typedef vector<PersonaJuridica> ArrayClientesEmpresas;
 typedef vector<ProductoInventario> ArrayInventario;
 typedef vector<ProductoCarrito> ArrayCarritoCompra;
 typedef vector<Pedido> ArrayPedidos;
+typedef vector<Factura> ArrayFacturas;
 
 class Fecha{
 	int dia, mes, anio;
@@ -169,18 +171,19 @@ class Bodega {
 			return this->telefono;
 		}
 		
-		void set_nombre(){
+		void set_nombre(char *nombre){
 			strcpy(this->nombre, nombre);
 		}
-		void set_direccion(){
+		void set_direccion(char *direccion){
 			strcpy(this->direccion, direccion);;
 		}
-		void set_correo(){
+		void set_correo(char *correo){
 			strcpy(this->correo, correo);
 		}
 		void set_telefono(char *telefono){
 			strcpy(this->telefono, telefono);
 		}
+	Bodega(){}
 };
 
 class Cliente {
@@ -232,7 +235,7 @@ class Cliente {
 class PersonaNatural: public Cliente{
 	private:
 		char apellido[20];
-		char cedula[8];
+		char cedula[9];
 		Fecha fecha_nacimiento;
 	public:
 		char *get_apellido(){
@@ -314,6 +317,10 @@ class Pedido {
 	private:
 		ArrayCarritoCompra *carrito;
 		Cliente cliente_pedido;
+		int facturado;
+		int num_pedido;
+		Fecha fecha_pedido;
+		Bodega *bodegon;
 		
 	public:
 		int es_regalo;
@@ -336,10 +343,53 @@ class Pedido {
 		Cliente get_cliente(){
 			return this->cliente_pedido;
 		}
+		
+		void set_bodega(Bodega *bodega){
+			this->bodegon = bodega;
+		}
+		Bodega *get_bodega(){
+			return this->bodegon;
+		}
+		
+		int get_num_pedido(){
+			return this->num_pedido;
+		}
+		
+		void set_facturado(int facturado){
+			this->facturado = facturado;
+		}
+		int get_facturado(){
+			return this->facturado;
+		}
 	
-	Pedido(){}
+	Pedido(){
+		this->facturado = 0;
+		this->bodegon = new Bodega;
+		this->num_pedido = rand();
+	}
 };
 
+class Factura{
+	private:
+		int num_factura;
+		Pedido pedido;
+		Fecha fecha_factura;
+	public:
+		void set_pedido(Pedido pedido){
+			this->pedido = pedido;
+		}
+		void generar_hora(){
+			
+		}
+		char *get_fecha(){
+			return (char*)"";
+		}
+	
+	Factura(){
+		this->num_factura = rand();
+	}
+	
+};
 
 
 void registrar_cliente_persona(ArrayClientesPersonas *array){
@@ -375,7 +425,7 @@ void imprimir_total_carrito(ArrayCarritoCompra *carrito){
 	cout << "====================================================================" << endl;
 }
 
-void proceso_compra(ArrayClientesEmpresas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos, Cliente cliente_compra){
+void proceso_compra(ArrayInventario *array_inventario, ArrayPedidos *array_pedidos, Cliente cliente_compra, Bodega *bodegon){
 	
 	
 
@@ -444,6 +494,7 @@ void proceso_compra(ArrayClientesEmpresas *array, ArrayInventario *array_inventa
 		nuevo_pedido.es_regalo = es_regalo;
 		nuevo_pedido.set_carrito(carrito);
 		nuevo_pedido.set_cliente(cliente_compra);
+		nuevo_pedido.set_bodega(bodegon);
 		
 		array_pedidos->push_back(nuevo_pedido);
 		
@@ -453,7 +504,7 @@ void proceso_compra(ArrayClientesEmpresas *array, ArrayInventario *array_inventa
 	}
 }
 
-void proceso_compra_empresa(ArrayClientesEmpresas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos){
+void proceso_compra_empresa(ArrayClientesEmpresas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos, Bodega *bodegon){
 	char rif[15];
 	int encontrado = 0;
 	
@@ -471,7 +522,7 @@ void proceso_compra_empresa(ArrayClientesEmpresas *array, ArrayInventario *array
 	}
 	
 	if(encontrado){
-		proceso_compra(array, array_inventario, array_pedidos, cliente_compra);
+		proceso_compra(array_inventario, array_pedidos, cliente_compra, bodegon);
 		
 	}else{
 		cout << endl << "?????????????????????????????"<< endl;
@@ -480,8 +531,8 @@ void proceso_compra_empresa(ArrayClientesEmpresas *array, ArrayInventario *array
 	}
 }
 
-void proceso_compra_persona(ArrayClientesPersonas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos){
-	char cedula[8];
+void proceso_compra_persona(ArrayClientesPersonas *array, ArrayInventario *array_inventario, ArrayPedidos *array_pedidos, Bodega *bodegon){
+	char cedula[9];
 	int encontrado = 0;
 	
 	cout << "Ingrese la cedula del cliente" << endl;
@@ -490,7 +541,7 @@ void proceso_compra_persona(ArrayClientesPersonas *array, ArrayInventario *array
 	PersonaNatural cliente_compra;
 	
 	for(ArrayClientesPersonas::iterator i = array->begin();i!=array->end(); i++){
-		if(strcmp((*i).get_cedula(), cedula == 0){
+		if(strcmp((*i).get_cedula(), cedula) == 0){
 			cliente_compra = *i;
 			encontrado = 1;
 			break;
@@ -498,7 +549,7 @@ void proceso_compra_persona(ArrayClientesPersonas *array, ArrayInventario *array
 	}
 	
 	if(encontrado){
-		proceso_compra(array, array_inventario, array_pedidos, cliente_compra);
+		proceso_compra(array_inventario, array_pedidos, cliente_compra, bodegon);
 		
 	}else{
 		cout << endl << "?????????????????????????????"<< endl;
@@ -576,6 +627,74 @@ void cargar_catalogo_inventario(ArrayInventario *array){
 	
 }
 
+void cargar_datos_bodega(Bodega *nueva_bodega){
+	nueva_bodega->set_nombre((char*)"Bodegón Hermanos Gouveia");
+	nueva_bodega->set_direccion((char*)"Pto fijo estado falcon");
+	nueva_bodega->set_correo((char*)"bodegon@gmail.com");
+	nueva_bodega->set_telefono((char*)"123456789");
+}
+
+void mostrar_pedidos(ArrayPedidos *pedidos){
+	int num_pedido = 0;
+	for(ArrayPedidos::iterator i = pedidos->begin(); i!=pedidos->end(); i++){
+		Pedido pedido = (*i);
+		
+		cout << "_______________-PEDIDO Nro " << num_pedido << " -_________________" << endl;
+		cout << "Codigo Pedido: " << pedido.get_num_pedido() << endl;
+		cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
+		cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
+		cout << "Direccion Envio: " << pedido.direccion << endl;
+		cout << "Correo: " << pedido.get_cliente().get_correo() << endl;
+		cout << "Es Regalo: " << ((pedido.es_regalo == 1)?("SI"):("NO")) << endl;
+		cout << "Facturado: " << ((pedido.get_facturado() == 1)?("SI"):("NO")) << endl;
+		imprimir_total_carrito(pedido.get_carrito());
+		num_pedido++;
+	}
+}
+
+void imprimir_factura(Pedido pedido){
+	int precio_total_sin_iva = 0;
+	ProductoCarrito elemento;
+	ArrayCarritoCompra *carrito = pedido.get_carrito();
+	Factura nueva_factura;
+	
+	cout << "====================================================================" << endl;
+	cout << "Codigo Factura: " << nueva_factura.get_fecha() << endl;
+	cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
+	cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
+	cout << "Direccion Envio: " << pedido.direccion << endl;
+	cout << "Correo: " << pedido.get_cliente().get_correo() << endl;
+	cout << "Es Regalo: " << ((pedido.es_regalo == 1)?("SI"):("NO")) << endl;
+	
+	for(ArrayCarritoCompra::iterator i = carrito->begin();i!=carrito->end(); i++){
+		elemento = (*i);
+		precio_total_sin_iva += (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio());
+		
+		cout << elemento.get_producto().producto_vino.get_nombre()  << " | " ;
+		cout << elemento.get_producto().producto_vino.get_precio() << " Bs | " ;
+		cout << elemento.get_cantidad_solicitada() << " | ";
+		cout << (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio()) << " Bs" << endl;
+	}
+	cout << "Total de la compra sin iva: " << precio_total_sin_iva << " Bs" <<endl;
+	cout << "Total de la compra (12%): " << precio_total_sin_iva*(1.12) << " Bs" <<endl;
+	cout << "====================================================================" << endl;
+}
+
+void procesar_pedidos(ArrayPedidos *pedidos, ArrayFacturas *facturas){
+	int num_pedido_facturar;
+	mostrar_pedidos(pedidos);
+	if(pedidos->size()){
+		cout << "Seleccione el numero del pedido que desea facturar" << endl;
+		cout << ">"; cin >> num_pedido_facturar;
+		
+		Pedido pedido_seleccionado = pedidos->at(num_pedido_facturar);
+		pedido_seleccionado.set_facturado(1);
+		pedidos->at(num_pedido_facturar) = pedido_seleccionado;
+		
+		imprimir_factura(pedido_seleccionado);
+	}
+}
+
 
 
 int main(int argc, char *argv[]) {
@@ -586,8 +705,11 @@ int main(int argc, char *argv[]) {
 	ArrayClientesEmpresas *v_clientes_emp = new ArrayClientesEmpresas;
 	ArrayInventario *v_inventario = new ArrayInventario;
 	ArrayPedidos *v_pedidos = new ArrayPedidos;
+	ArrayFacturas *v_facturas = new ArrayFacturas;
+	Bodega * bodegon = new Bodega;
 	
 	cargar_catalogo_inventario(v_inventario);
+	cargar_datos_bodega(bodegon);
 	
 	do{
 		cout << "######################################################" << endl;
@@ -596,7 +718,8 @@ int main(int argc, char *argv[]) {
 		cout << "1) Registro de clientes en el sistema" << endl;
 		cout << "2) Compra de vino" << endl;
 		cout << "3) Mostrar pedidos" << endl;
-		cout << "4) Salir" << endl;
+		cout << "4) Procesar Pedidos" << endl;
+		cout << "5) Salir" << endl;
 		cin >> opcion;
 		
 		switch(opcion){
@@ -615,19 +738,22 @@ int main(int argc, char *argv[]) {
 			case 2:
 				resp = menu_tipo_cliente();
 				if(resp == CLIENTE_PERSONA){
-					//proceso_compra_persona(v_clientes_per, v_inventario, v_pedidos);
+					proceso_compra_persona(v_clientes_per, v_inventario, v_pedidos, bodegon);
 				}
 				else if(resp == CLIENTE_EMPRESA){
-					proceso_compra_empresa(v_clientes_emp, v_inventario, v_pedidos);
+					proceso_compra_empresa(v_clientes_emp, v_inventario, v_pedidos, bodegon);
 				}
 				else{
 					cout << "Tipo de cliente desconocido" << endl;
 				}
 				break;
 			case 3:
-				
+				mostrar_pedidos(v_pedidos);
 				break;
 			case 4:
+				procesar_pedidos(v_pedidos, v_facturas);
+				break;
+			case 5:
 				exit = 1;
 				break;
 		}
