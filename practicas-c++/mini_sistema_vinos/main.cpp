@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <stdlib.h>
+#include <stdio.h>
 using namespace std;
 
 #define ANIO_ACTUAL 2016
@@ -17,6 +19,8 @@ class ProductoInventario;
 class ProductoCarrito;
 class Pedido;
 class Factura;
+class Fecha;
+class ProductoSeleccionado;
 
 typedef vector<PersonaNatural> ArrayClientesPersonas;
 typedef vector<PersonaJuridica> ArrayClientesEmpresas;
@@ -24,295 +28,339 @@ typedef vector<ProductoInventario> ArrayInventario;
 typedef vector<ProductoCarrito> ArrayCarritoCompra;
 typedef vector<Pedido> ArrayPedidos;
 typedef vector<Factura> ArrayFacturas;
+typedef vector<ProductoSeleccionado> ArrayProdutosSeleccionados;
 
-char *obtener_fecha() {
-	int MAXLEN = 80;
-	char *s = new char[MAXLEN];
-	time_t t = time(0);
-	strftime(s, MAXLEN, "%m-%d-%Y", localtime(&t));
-	return s;
-}
 
 class Fecha{
 	int dia, mes, anio;
 	
 	public :
-	void registrar_fecha(){
-		cout << "Dia: "; cin >> this->dia;
-		cout << "Mes: "; cin >> this->mes;
-		cout << "Año: "; cin >> this->anio;
-	}
-	
-	int calcular_edad(){
-		return ANIO_ACTUAL - this->anio;
-	}
+		void registrar_fecha(){
+			cout << "Dia: "; cin >> this->dia;
+			cout << "Mes: "; cin >> this->mes;
+			cout << "Año: "; cin >> this->anio;
+		}
+		
+		void registrar_fecha(int dia, int mes, int anio){
+			this->dia = dia;
+			this->mes = mes;
+			this->anio = anio;
+		}
+		
+		int get_dia(){
+			return this->dia;
+		}
+		
+		int get_mes(){
+			return this->mes;
+		}
+		
+		int get_anio(){
+			return this->anio;
+		}
+		
+		int calcular_edad(){
+			return ANIO_ACTUAL - this->anio;
+		}
 };
 
+Fecha obtener_fecha(){
+	Fecha fecha;
+	time_t now = time(0);
+	tm *ltm = localtime(&now);
+	
+	fecha.registrar_fecha(ltm->tm_mday,(1 + ltm->tm_mon), (1900 + ltm->tm_year));
+	return fecha;
+}
+
 class Producto {
-	private:
-		char nombre[30];
-		char categoria[30];// cosecha, media barrica, crianza, reserva, gran reserva, reserva especial
-		float precio;
-	public:
-		char *get_nombre(){
-			return this->nombre;
-		}
-		char *get_categoria(){
-			return this->categoria;
-		}
-		float get_precio(){
-			return this->precio;
-		}
+private:
+	char nombre[30];
+	char categoria[30];// cosecha, media barrica, crianza, reserva, gran reserva, reserva especial
+	float precio;
+public:
+	char *get_nombre(){
+		return this->nombre;
+	}
+	char *get_categoria(){
+		return this->categoria;
+	}
+	float get_precio(){
+		return this->precio;
+	}
+	
+	void set_nombre(char *nombre){
+		strcpy(this->nombre, nombre);
+	}
+	void set_categoria(char *categoria){
+		strcpy(this->categoria, categoria);
+	}
+	void set_precio(float precio){
+		this->precio = precio;
+	}
+	
+	void registrar_datos(){
+		cout << "Nombre: ";
+		cin >> this->nombre;
 		
-		void set_nombre(char *nombre){
-			strcpy(this->nombre, nombre);
-		}
-		void set_categoria(char *categoria){
-			strcpy(this->categoria, categoria);
-		}
-		void set_precio(float precio){
-			this->precio = precio;
-		}
+		cout << "Categoria: ";
+		cin >> this->categoria;
 		
-		void registrar_datos(){
-			cout << "Nombre: ";
-			cin >> this->nombre;
-			
-			cout << "Categoria: ";
-			cin >> this->categoria;
-			
-			cout << "Precio: ";
-			cin >> this->precio;
-		}
-		
-		Producto(){}
-		~Producto(){}
+		cout << "Precio: ";
+		cin >> this->precio;
+	}
+	
+	Producto(){}
+	~Producto(){}
 };
 
 class Vino: public Producto{
-	private:
-		float temperatura;
-		char comentario[80];
-		char formato[20]; // media botella, tres cuartos, litro y medio, cinco litros
-
-	public:
-		float get_temperatura(){
-			return this->temperatura;
-		}
-		void set_temperatura(float temperatura){
-			this->temperatura = temperatura;
-		}
+private:
+	float temperatura;
+	char comentario[80];
+	char formato[20]; // media botella, tres cuartos, litro y medio, cinco litros
+	
+public:
+	float get_temperatura(){
+		return this->temperatura;
+	}
+	void set_temperatura(float temperatura){
+		this->temperatura = temperatura;
+	}
+	
+	char *get_comentario(){
+		return this->comentario;
+	}
+	void set_comentario(char *comentario){
+		strcpy(this->comentario, comentario);
+	}
+	
+	char *get_formato(){
+		return this->formato;
+	}
+	void set_formato(char *formato){
+		strcpy(this->formato, formato);
+	}
+	
+	void registrar_datos(){
+		Producto::registrar_datos();
 		
-		char *get_comentario(){
-			return this->comentario;
-		}
-		void set_comentario(char *comentario){
-			strcpy(this->comentario, comentario);
-		}
+		cout << "Temperatura: ";
+		cin >> this->temperatura;
 		
-		char *get_formato(){
-			return this->formato;
-		}
-		void set_formato(char *formato){
-			strcpy(this->formato, formato);
-		}
+		cout << "Formato: ";
+		cin >> this->formato;
 		
-		void registrar_datos(){
-			Producto::registrar_datos();
-			
-			cout << "Temperatura: ";
-			cin >> this->temperatura;
-			
-			cout << "Formato: ";
-			cin >> this->formato;
-			
-			cout << "Comentario: ";
-			cin >> this->comentario;
-		}
-		
-		void imprimir_datos(){
-			cout << "Nombre: " << this->get_nombre() << endl;
-			cout << "Categoria: " << this->get_categoria() << endl;
-			cout << "Precio: " << this->get_precio() << endl;
-			cout << "Temperatura: " << this->get_temperatura() << endl;
-			cout << "Comentario: " << this->get_comentario() << endl;
-			cout << "Formato: " << this->get_formato() << endl;
-		}
-		
-		Vino() : Producto(){}
+		cout << "Comentario: ";
+		cin >> this->comentario;
+	}
+	
+	void imprimir_datos(){
+		cout << "Nombre: " << this->get_nombre() << endl;
+		cout << "Categoria: " << this->get_categoria() << endl;
+		cout << "Precio: " << this->get_precio() << endl;
+		cout << "Temperatura: " << this->get_temperatura() << endl;
+		cout << "Comentario: " << this->get_comentario() << endl;
+		cout << "Formato: " << this->get_formato() << endl;
+	}
+	
+	Vino() : Producto(){}
 };
 
 class ProductoInventario {
-	public:
-		Vino producto_vino;
-		int cantidad_botellas;
-		int tipo_producto; //1 - botella, 2- caja botellas
-		int cantidad_disponible;
-		
-		void imprimir_datos(){
-			producto_vino.imprimir_datos();
-			cout << "Cantidad de botellas: " << this->cantidad_botellas << endl;
-			cout << "Tipo Producto: " << ((this->tipo_producto == BOTELLA)?("Botella"):("Caja Botellas")) << endl;
-			cout << "Cantidad Disponible: " << this->cantidad_disponible << endl;
-			cout << "--------------------------------------------------------" << endl;
-		}
+public:
+	Vino producto_vino;
+	int cantidad_botellas;
+	int tipo_producto; //1 - botella, 2- caja botellas
+	int cantidad_disponible;
+	
+	void disminuir_cantidad(int cantidad){
+		this->cantidad_disponible -= cantidad;
+	}
+	
+	void imprimir_datos(){
+		producto_vino.imprimir_datos();
+		cout << "Cantidad de botellas: " << this->cantidad_botellas << endl;
+		cout << "Tipo Producto: " << ((this->tipo_producto == BOTELLA)?("Botella"):("Caja Botellas")) << endl;
+		cout << "Cantidad Disponible: " << this->cantidad_disponible << endl;
+		cout << "--------------------------------------------------------" << endl;
+	}
 };
 
+class ProductoSeleccionado{
+	int num_producto;
+	int cantidad;
+	
+public:
+	int get_num_producto(){
+		return this->num_producto;
+	}
+	int get_cantidad(){
+		return this->cantidad;
+	}
+	
+	ProductoSeleccionado(int num, int cantidad){
+		this->num_producto = num;
+		this->cantidad = cantidad;
+	}
+};
+
+
 class Bodega {
-	private:
-		char nombre[30];
-		char direccion[40];
-		char correo[30];
-		char telefono[15];
-		
-	public:
-		char *get_nombre(){
-			return this->nombre;
-		}
-		char *get_direccion(){
-			return this->direccion;
-		}
-		char *get_correo(){
-			return this->correo;
-		}
-		char *get_telefono(){
-			return this->telefono;
-		}
-		
-		void set_nombre(char *nombre){
-			strcpy(this->nombre, nombre);
-		}
-		void set_direccion(char *direccion){
-			strcpy(this->direccion, direccion);;
-		}
-		void set_correo(char *correo){
-			strcpy(this->correo, correo);
-		}
-		void set_telefono(char *telefono){
-			strcpy(this->telefono, telefono);
-		}
+private:
+	char nombre[30];
+	char direccion[40];
+	char correo[30];
+	char telefono[15];
+	
+public:
+	char *get_nombre(){
+		return this->nombre;
+	}
+	char *get_direccion(){
+		return this->direccion;
+	}
+	char *get_correo(){
+		return this->correo;
+	}
+	char *get_telefono(){
+		return this->telefono;
+	}
+	
+	void set_nombre(char *nombre){
+		strcpy(this->nombre, nombre);
+	}
+	void set_direccion(char *direccion){
+		strcpy(this->direccion, direccion);;
+	}
+	void set_correo(char *correo){
+		strcpy(this->correo, correo);
+	}
+	void set_telefono(char *telefono){
+		strcpy(this->telefono, telefono);
+	}
 	Bodega(){}
 };
 
 class Cliente {
-	private:
-		char nombre[20];
-		char correo[40];
-		char telefono[15];
-		char direccion[30];
-	public:
-		char *get_nombre(){
-			return this->nombre;
-		}
-		char *get_correo(){
-			return this->correo;
-		}
-		char *get_telefono(){
-			return this->telefono;
-		}
+private:
+	char nombre[20];
+	char correo[40];
+	char telefono[15];
+	char direccion[30];
+public:
+	char *get_nombre(){
+		return this->nombre;
+	}
+	char *get_correo(){
+		return this->correo;
+	}
+	char *get_telefono(){
+		return this->telefono;
+	}
+	
+	char *get_direccion(){
+		return this->direccion;
+	}
+	
+	void set_nombre(char *nombre){
+		strcpy(this->nombre, nombre);
+	}
+	void set_correo(){
+		strcpy(this->correo, correo);
+	}
+	void set_telefono(char *telefono){
+		strcpy(this->telefono, telefono);
+	}
+	
+	void registrar_datos(){
+		cout << "Nombre: ";
+		cin >> this->nombre;
 		
-		char *get_direccion(){
-			return this->direccion;
-		}
+		cout << "Correo: ";
+		cin >> this->correo;
 		
-		void set_nombre(char *nombre){
-			strcpy(this->nombre, nombre);
-		}
-		void set_correo(){
-			strcpy(this->correo, correo);
-		}
-		void set_telefono(char *telefono){
-			strcpy(this->telefono, telefono);
-		}
+		cout << "Telefono: ";
+		cin >> this->telefono;
 		
-		void registrar_datos(){
-			cout << "Nombre: ";
-			cin >> this->nombre;
-			
-			cout << "Correo: ";
-			cin >> this->correo;
-			
-			cout << "Telefono: ";
-			cin >> this->telefono;
-			
-			cout << "Direccion: ";
-			cin >> this->direccion;
-		}
+		cout << "Direccion: ";
+		cin >> this->direccion;
+	}
 };
 
 class PersonaNatural: public Cliente{
-	private:
-		char apellido[20];
-		char cedula[9];
-		Fecha fecha_nacimiento;
-	public:
-		char *get_apellido(){
-			return this->apellido;
-		}
-		char *get_cedula(){
-			return this->cedula;
-		}
-		
-		
-		void set_apellido(char *apellido){
-			strcpy(this->apellido, apellido);
-		}
-		void set_cedula(char *cedula){
-			strcpy(this->cedula, cedula);
-		}
-		void set_fecha_nacimiento(){
-			this->fecha_nacimiento.registrar_fecha();
-		}
-		void registrar_datos(){
-			Cliente::registrar_datos();
-			cout << "Apellido: "; cin >> this->apellido;
-			cout << "Cedula: "; cin >> this->cedula;
-			this->set_fecha_nacimiento();
-		}
-
+private:
+	char apellido[20];
+	char cedula[9];
+	Fecha fecha_nacimiento;
+public:
+	char *get_apellido(){
+		return this->apellido;
+	}
+	char *get_cedula(){
+		return this->cedula;
+	}
+	
+	
+	void set_apellido(char *apellido){
+		strcpy(this->apellido, apellido);
+	}
+	void set_cedula(char *cedula){
+		strcpy(this->cedula, cedula);
+	}
+	void set_fecha_nacimiento(){
+		this->fecha_nacimiento.registrar_fecha();
+	}
+	void registrar_datos(){
+		Cliente::registrar_datos();
+		cout << "Apellido: "; cin >> this->apellido;
+		cout << "Cedula: "; cin >> this->cedula;
+		this->set_fecha_nacimiento();
+	}
+	
 	PersonaNatural(): Cliente(){}
 };
 
 class PersonaJuridica: public Cliente{
-	private:
-		char rif[15];
-	public:
-		char *get_rif(){
-			return this->rif;
-		}
-		
-		void set_rif(char *rif){
-			strcpy(this->rif, rif);
-		}
-		
-		void registrar_datos(){
-			Cliente::registrar_datos();
-			cout << "Rif: "; cin >> this->rif;
-		}
-		
+private:
+	char rif[15];
+public:
+	char *get_rif(){
+		return this->rif;
+	}
+	
+	void set_rif(char *rif){
+		strcpy(this->rif, rif);
+	}
+	
+	void registrar_datos(){
+		Cliente::registrar_datos();
+		cout << "Rif: "; cin >> this->rif;
+	}
+	
 	PersonaJuridica(): Cliente(){}
 };
 
 class ProductoCarrito {
-	private:
-		ProductoInventario producto;
-		int cantidad;
-	public:
-		
-		void set_producto(ProductoInventario nuevo_producto){
-			this->producto = nuevo_producto;
-		}
-		
-		void set_cantidad(int cantidad){
-			this->cantidad = cantidad;
-		}
-		
-		ProductoInventario get_producto(){
-			return this->producto;
-		}
-		int get_cantidad_solicitada(){
-			return this->cantidad;
-		}
+private:
+	ProductoInventario producto;
+	int cantidad;
+public:
+	
+	void set_producto(ProductoInventario nuevo_producto){
+		this->producto = nuevo_producto;
+	}
+	
+	void set_cantidad(int cantidad){
+		this->cantidad = cantidad;
+	}
+	
+	ProductoInventario get_producto(){
+		return this->producto;
+	}
+	int get_cantidad_solicitada(){
+		return this->cantidad;
+	}
 	
 	ProductoCarrito(){}
 	ProductoCarrito(ProductoInventario nuevo_producto, int cantidad){
@@ -322,95 +370,102 @@ class ProductoCarrito {
 };
 
 class Pedido {
-	private:
-		ArrayCarritoCompra *carrito;
-		Cliente cliente_pedido;
-		int facturado;
-		int num_pedido;
-		char *fecha_pedido;
-		Bodega *bodegon;
-		
-	public:
-		int es_regalo;
-		char direccion[30];
-		
-		ArrayCarritoCompra *get_carrito(){
-			return this->carrito;
-		}
-		void set_carrito(ArrayCarritoCompra *carrito){
-			this->carrito = carrito;
-		}
-		
-		void set_direccion_envio(char *direccion){
-			strcpy(this->direccion, direccion);
-		}
-		
-		void set_cliente(Cliente cliente){
-			this->cliente_pedido = cliente;
-		}
-		Cliente get_cliente(){
-			return this->cliente_pedido;
-		}
-		
-		void set_bodega(Bodega *bodega){
-			this->bodegon = bodega;
-		}
-		Bodega *get_bodega(){
-			return this->bodegon;
-		}
-		
-		int get_num_pedido(){
-			return this->num_pedido;
-		}
-		
-		void set_facturado(int facturado){
-			this->facturado = facturado;
-		}
-		int get_facturado(){
-			return this->facturado;
-		}
-		
-		void generar_fecha(){
-			strcpy(this->fecha_pedido, obtener_fecha());
-		}
-		char *get_fecha(){
-			return this->fecha_pedido;
-		}
+private:
+	ArrayCarritoCompra *carrito;
+	Cliente cliente_pedido;
+	int facturado;
+	int num_pedido;
+	Fecha fecha_pedido;
+	Bodega *bodegon;
+	
+public:
+	int es_regalo;
+	char direccion[30];
+	
+	ArrayCarritoCompra *get_carrito(){
+		return this->carrito;
+	}
+	void set_carrito(ArrayCarritoCompra *carrito){
+		this->carrito = carrito;
+	}
+	
+	void set_direccion_envio(char *direccion){
+		strcpy(this->direccion, direccion);
+	}
+	
+	void set_cliente(Cliente cliente){
+		this->cliente_pedido = cliente;
+	}
+	Cliente get_cliente(){
+		return this->cliente_pedido;
+	}
+	
+	void set_bodega(Bodega *bodega){
+		this->bodegon = bodega;
+	}
+	Bodega *get_bodega(){
+		return this->bodegon;
+	}
+	
+	int get_num_pedido(){
+		return this->num_pedido;
+	}
+	
+	void set_facturado(int facturado){
+		this->facturado = facturado;
+	}
+	int get_facturado(){
+		return this->facturado;
+	}
+	
+	Fecha get_fecha(){
+		return this->fecha_pedido;
+	}
+	
+	void set_fecha(Fecha fecha){
+		this->fecha_pedido = fecha;
+	}
+	
 	
 	Pedido(){
 		this->facturado = 0;
 		this->bodegon = new Bodega;
 		this->num_pedido = rand();
-		this->generar_fecha();
 	}
 };
 
 class Factura{
-	private:
-		int num_factura;
-		Pedido pedido;
-		char* fecha_factura;
-	public:
-		void set_pedido(Pedido pedido){
-			this->pedido = pedido;
-		}
-		void generar_fecha(){
-			strcpy(this->fecha_factura, obtener_fecha());
-		}
-		char *get_fecha(){
-			return this->fecha_factura;
-		}
+private:
+	int num_factura;
+	Pedido pedido;
+	Fecha fecha_factura;
+public:
+	void set_pedido(Pedido pedido){
+		this->pedido = pedido;
+	}
+	void generar_fecha(Fecha fecha){
+		this->fecha_factura = fecha;
+	}
+	Fecha get_fecha(){
+		return fecha_factura;
+	}
+	void set_fecha(Fecha fecha){
+		this->fecha_factura = fecha;
+	}
+	
+	int get_cod_factura(){
+		return this->num_factura;
+	}
 	
 	Factura(){
 		this->num_factura = rand();
-		this->generar_fecha();
 	}
 	
 };
 
 
 void registrar_cliente_persona(ArrayClientesPersonas *array){
-
+	
 	PersonaNatural nuevo_cliente;
 	nuevo_cliente.registrar_datos();
 	array->push_back(nuevo_cliente);
@@ -421,22 +476,22 @@ void registrar_cliente_empresa(ArrayClientesEmpresas *array){
 	PersonaJuridica nuevo_cliente;
 	nuevo_cliente.registrar_datos();
 	array->push_back(nuevo_cliente);
-
+	
 }
 
 void imprimir_total_carrito(ArrayCarritoCompra *carrito){
-	int precio_total_sin_iva = 0;
+	long int precio_total_sin_iva = 0;
 	ProductoCarrito elemento;
 	
 	cout << "====================================================================" << endl;
 	for(ArrayCarritoCompra::iterator i = carrito->begin();i!=carrito->end(); i++){
 		elemento = (*i);
-		precio_total_sin_iva += (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio());
+		precio_total_sin_iva += (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio()*elemento.get_cantidad_solicitada());
 		
 		cout << elemento.get_producto().producto_vino.get_nombre()  << " | " ;
 		cout << elemento.get_producto().producto_vino.get_precio() << " Bs | " ;
 		cout << elemento.get_cantidad_solicitada() << " | ";
-		cout << (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio()) << " Bs" << endl;
+		cout << (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio()*elemento.get_cantidad_solicitada()) << " Bs" << endl;
 	}
 	cout << "Total de la compra sin iva: " << precio_total_sin_iva << " Bs" <<endl;
 	cout << "====================================================================" << endl;
@@ -444,13 +499,12 @@ void imprimir_total_carrito(ArrayCarritoCompra *carrito){
 
 void proceso_compra(ArrayInventario *array_inventario, ArrayPedidos *array_pedidos, Cliente cliente_compra, Bodega *bodegon){
 	
-	
-
 	int indice = 0, opcion_producto = -1, cantidad_solicitada = 0, tipo_tarjeta = 0;
 	int es_regalo = 0;
 	char tarjeta_credito[20], direccion_regalo[30];
 	
 	ArrayCarritoCompra *carrito = new ArrayCarritoCompra;
+	ArrayProdutosSeleccionados *productos_seleccionados = new ArrayProdutosSeleccionados;
 	Pedido nuevo_pedido;
 	
 	do{
@@ -472,7 +526,7 @@ void proceso_compra(ArrayInventario *array_inventario, ArrayPedidos *array_pedid
 		
 		if(opcion_producto != -1){
 			
-			if(opcion_producto > 0 && opcion_producto < (int)array_inventario->size()){
+			if(opcion_producto >= 0 && opcion_producto < (int)array_inventario->size()){
 				
 				cout << "Ingrese la cantidad que requiere > "; cin >> cantidad_solicitada;
 				
@@ -483,6 +537,7 @@ void proceso_compra(ArrayInventario *array_inventario, ArrayPedidos *array_pedid
 					cout << "?????????????????????????????"<< endl;
 				}else{
 					carrito->push_back( ProductoCarrito(array_inventario->at(opcion_producto),cantidad_solicitada) );
+					productos_seleccionados->push_back(ProductoSeleccionado(opcion_producto, cantidad_solicitada));
 				}
 			}else{
 				cout << endl << "?????????????????????????????"<< endl;
@@ -512,6 +567,12 @@ void proceso_compra(ArrayInventario *array_inventario, ArrayPedidos *array_pedid
 		nuevo_pedido.set_carrito(carrito);
 		nuevo_pedido.set_cliente(cliente_compra);
 		nuevo_pedido.set_bodega(bodegon);
+		
+		//Restanmos al stock la cantidad solicitada de la compra
+		for(ArrayProdutosSeleccionados::iterator i= productos_seleccionados->begin(); i!=productos_seleccionados->end(); i++){
+			ProductoSeleccionado producto = (*i);
+			array_inventario->at(producto.get_num_producto()).disminuir_cantidad(producto.get_cantidad());
+		}
 		
 		array_pedidos->push_back(nuevo_pedido);
 		
@@ -589,7 +650,7 @@ void cargar_catalogo_inventario(ArrayInventario *array){
 	
 	nuevo_producto.producto_vino.set_nombre((char*)"Santa teresa");
 	nuevo_producto.producto_vino.set_categoria((char*)"Reserva");
-	nuevo_producto.producto_vino.set_precio(12300);
+	nuevo_producto.producto_vino.set_precio(123);
 	nuevo_producto.producto_vino.set_temperatura(1.12);
 	nuevo_producto.producto_vino.set_formato((char*)"Medio litro");
 	nuevo_producto.producto_vino.set_comentario((char*)"Ron añejo");
@@ -600,7 +661,7 @@ void cargar_catalogo_inventario(ArrayInventario *array){
 	
 	nuevo_producto.producto_vino.set_nombre((char*)"Cacique");
 	nuevo_producto.producto_vino.set_categoria((char*)"cosecha");
-	nuevo_producto.producto_vino.set_precio(10000);
+	nuevo_producto.producto_vino.set_precio(80);
 	nuevo_producto.producto_vino.set_temperatura(1.00);
 	nuevo_producto.producto_vino.set_formato((char*)"5 litros");
 	nuevo_producto.producto_vino.set_comentario((char*)"Ron añejo");
@@ -611,7 +672,7 @@ void cargar_catalogo_inventario(ArrayInventario *array){
 	
 	nuevo_producto.producto_vino.set_nombre((char*)"Ramón Bilbao Reserva");
 	nuevo_producto.producto_vino.set_categoria((char*)"Reserva");
-	nuevo_producto.producto_vino.set_precio(12300);
+	nuevo_producto.producto_vino.set_precio(120);
 	nuevo_producto.producto_vino.set_temperatura(1.12);
 	nuevo_producto.producto_vino.set_formato((char*)"Medio litro");
 	nuevo_producto.producto_vino.set_comentario((char*)"De coleccion");
@@ -622,7 +683,7 @@ void cargar_catalogo_inventario(ArrayInventario *array){
 	
 	nuevo_producto.producto_vino.set_nombre((char*)"Marqués de Griñon Reserva");
 	nuevo_producto.producto_vino.set_categoria((char*)"Reserva");
-	nuevo_producto.producto_vino.set_precio(122300);
+	nuevo_producto.producto_vino.set_precio(130);
 	nuevo_producto.producto_vino.set_temperatura(1.12);
 	nuevo_producto.producto_vino.set_formato((char*)"media botella");
 	nuevo_producto.producto_vino.set_comentario((char*)"vino tinto");
@@ -633,7 +694,7 @@ void cargar_catalogo_inventario(ArrayInventario *array){
 	
 	nuevo_producto.producto_vino.set_nombre((char*)"Etchart Mendoza");
 	nuevo_producto.producto_vino.set_categoria((char*)"Reserva");
-	nuevo_producto.producto_vino.set_precio(11300);
+	nuevo_producto.producto_vino.set_precio(1130);
 	nuevo_producto.producto_vino.set_temperatura(1.11);
 	nuevo_producto.producto_vino.set_formato((char*)"tres cuartos");
 	nuevo_producto.producto_vino.set_comentario((char*)"de la cosecha");
@@ -655,10 +716,11 @@ void mostrar_pedidos(ArrayPedidos *pedidos){
 	int num_pedido = 0;
 	for(ArrayPedidos::iterator i = pedidos->begin(); i!=pedidos->end(); i++){
 		Pedido pedido = (*i);
+		pedido.set_fecha(obtener_fecha());
 		
 		cout << "_______________-PEDIDO Nro " << num_pedido << " -_________________" << endl;
 		cout << "Codigo Pedido: " << pedido.get_num_pedido() << endl;
-		cout << "Fecha: " << pedido.get_fecha() << endl;
+		cout << "Fecha: " << pedido.get_fecha().get_dia() << "/" << pedido.get_fecha().get_mes() << "/" << pedido.get_fecha().get_anio() << endl;
 		cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
 		cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
 		cout << "Direccion Envio: " << pedido.direccion << endl;
@@ -671,15 +733,15 @@ void mostrar_pedidos(ArrayPedidos *pedidos){
 }
 
 void imprimir_factura(Pedido pedido){
-	int precio_total_sin_iva = 0;
+	long int precio_total_sin_iva = 0;
 	ProductoCarrito elemento;
 	ArrayCarritoCompra *carrito = pedido.get_carrito();
 	Factura nueva_factura;
-	nueva_factura.generar_fecha();
+	nueva_factura.set_fecha(obtener_fecha());
 	
 	cout << "====================================================================" << endl;
-	cout << "Codigo Factura: " << nueva_factura.get_fecha() << endl;
-	cout << "Fecha: " << nueva_factura.get_fecha() << endl;
+	cout << "Codigo Factura: " << nueva_factura.get_cod_factura() << endl;
+	cout << "Fecha: " << nueva_factura.get_fecha().get_dia() << "/" << nueva_factura.get_fecha().get_mes() << "/" << nueva_factura.get_fecha().get_anio() << endl;
 	cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
 	cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
 	cout << "Direccion Envio: " << pedido.direccion << endl;
@@ -688,12 +750,12 @@ void imprimir_factura(Pedido pedido){
 	
 	for(ArrayCarritoCompra::iterator i = carrito->begin();i!=carrito->end(); i++){
 		elemento = (*i);
-		precio_total_sin_iva += (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio());
+		precio_total_sin_iva += (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio()*elemento.get_cantidad_solicitada());
 		
 		cout << elemento.get_producto().producto_vino.get_nombre()  << " | " ;
 		cout << elemento.get_producto().producto_vino.get_precio() << " Bs | " ;
 		cout << elemento.get_cantidad_solicitada() << " | ";
-		cout << (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio()) << " Bs" << endl;
+		cout << (elemento.get_producto().cantidad_botellas*elemento.get_producto().producto_vino.get_precio()*elemento.get_cantidad_solicitada()) << " Bs" << endl;
 	}
 	cout << "Total de la compra sin iva: " << precio_total_sin_iva << " Bs" <<endl;
 	cout << "Total de la compra (12%): " << precio_total_sin_iva*(1.12) << " Bs" <<endl;
@@ -707,11 +769,13 @@ void procesar_pedidos(ArrayPedidos *pedidos, ArrayFacturas *facturas){
 		cout << "Seleccione el numero del pedido que desea facturar" << endl;
 		cout << ">"; cin >> num_pedido_facturar;
 		
-		Pedido pedido_seleccionado = pedidos->at(num_pedido_facturar);
-		pedido_seleccionado.set_facturado(1);
-		pedidos->at(num_pedido_facturar) = pedido_seleccionado;
-		
-		imprimir_factura(pedido_seleccionado);
+		if(num_pedido_facturar > (int)facturas->size()){
+			Pedido pedido_seleccionado = pedidos->at(num_pedido_facturar);
+			pedido_seleccionado.set_facturado(1);
+			pedidos->at(num_pedido_facturar) = pedido_seleccionado;
+			
+			imprimir_factura(pedido_seleccionado);
+		}
 	}
 }
 
@@ -722,7 +786,7 @@ void mostrar_pedidos_sin_facturar(ArrayPedidos *pedidos){
 		if(pedido.get_facturado() == 2){
 			cout << "_______________-PEDIDO Nro " << num_pedido << " -_________________" << endl;
 			cout << "Codigo Pedido: " << pedido.get_num_pedido() << endl;
-			cout << "Fecha: " << pedido.get_fecha() << endl;
+			cout << "Fecha: " << pedido.get_fecha().get_dia() << "/" << pedido.get_fecha().get_mes() << "/" << pedido.get_fecha().get_anio() << endl;
 			cout << "Bodegon: " << pedido.get_bodega()->get_nombre() << endl;
 			cout << "Cliente: " << pedido.get_cliente().get_nombre() << endl;
 			cout << "Direccion Envio: " << pedido.direccion << endl;
@@ -762,42 +826,42 @@ int main(int argc, char *argv[]) {
 		cin >> opcion;
 		
 		switch(opcion){
-			case 1:
-				resp = menu_tipo_cliente();
-				if(resp == CLIENTE_PERSONA){
-					registrar_cliente_persona(v_clientes_per);
-				}
-				else if(resp == CLIENTE_EMPRESA){
-					registrar_cliente_empresa(v_clientes_emp);
-				}
-				else{
-					cout << "Tipo de cliente desconocido" << endl;
-				}
-				break;
-			case 2:
-				resp = menu_tipo_cliente();
-				if(resp == CLIENTE_PERSONA){
-					proceso_compra_persona(v_clientes_per, v_inventario, v_pedidos, bodegon);
-				}
-				else if(resp == CLIENTE_EMPRESA){
-					proceso_compra_empresa(v_clientes_emp, v_inventario, v_pedidos, bodegon);
-				}
-				else{
-					cout << "Tipo de cliente desconocido" << endl;
-				}
-				break;
-			case 3:
-				mostrar_pedidos(v_pedidos);
-				break;
-			case 4:
-				procesar_pedidos(v_pedidos, v_facturas);
-				break;
-			case 5:
-				mostrar_pedidos_sin_facturar(v_pedidos);
-				break;
-			case 6:
-				exit = 1;
-				break;
+		case 1:
+			resp = menu_tipo_cliente();
+			if(resp == CLIENTE_PERSONA){
+				registrar_cliente_persona(v_clientes_per);
+			}
+			else if(resp == CLIENTE_EMPRESA){
+				registrar_cliente_empresa(v_clientes_emp);
+			}
+			else{
+				cout << "Tipo de cliente desconocido" << endl;
+			}
+			break;
+		case 2:
+			resp = menu_tipo_cliente();
+			if(resp == CLIENTE_PERSONA){
+				proceso_compra_persona(v_clientes_per, v_inventario, v_pedidos, bodegon);
+			}
+			else if(resp == CLIENTE_EMPRESA){
+				proceso_compra_empresa(v_clientes_emp, v_inventario, v_pedidos, bodegon);
+			}
+			else{
+				cout << "Tipo de cliente desconocido" << endl;
+			}
+			break;
+		case 3:
+			mostrar_pedidos(v_pedidos);
+			break;
+		case 4:
+			procesar_pedidos(v_pedidos, v_facturas);
+			break;
+		case 5:
+			mostrar_pedidos_sin_facturar(v_pedidos);
+			break;
+		case 6:
+			exit = 1;
+			break;
 		}
 	} while(!exit);
 	return 0;
