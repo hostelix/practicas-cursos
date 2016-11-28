@@ -574,6 +574,9 @@ void proceso_compra(ArrayInventario *array_inventario, ArrayPedidos *array_pedid
 			array_inventario->at(producto.get_num_producto()).disminuir_cantidad(producto.get_cantidad());
 		}
 		
+		//Limpiamos el vector de productos seleccionados
+		array_inventario->clear();
+		
 		array_pedidos->push_back(nuevo_pedido);
 		
 		cout << "*********************************" << endl;
